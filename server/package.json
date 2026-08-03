@@ -16,7 +16,9 @@
     "cors": "^2.8.6",
     "express": "^5.2.1",
     "http": "^0.0.1-security",
-    "socket.io-client": "^4.8.3"
+    "path": "^0.12.7",
+    "socket.io-client": "^4.8.3",
+    "tunnelmole": "^2.4.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",

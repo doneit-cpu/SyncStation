@@ -2,29 +2,29 @@
 // we need to gather data and if possible make json , or object , and gather info ? don't where i gather info ? '' done 
 // i need to make user name and room code gen ,well username person give but be check by broswer 
 //  only one person made ther fucking room code and then share , it ,also if u want to make one then u should check if person is not join in any group or anything okay , 
+// both after the whatever room would need render the page ? without dobout thingk about it 
 
-import React from 'react'
-import Clipboardy from "../src/components/clipboard.tsx"
-import { useState } from 'react'
-import { joining, socket } from './services/socket.ts';
 import Inputtext from "./components/inputtext.tsx"
-import { genRoomcode } from './services/utlis.ts';
-
-export const history: string[] = [];
-const rooms = "nene"; // make function that can genrate the uniqe roomcode 
+import Clipboardy from "../src/components/clipboard.tsx"
+import Sharedroominfo from "./components/sharedroominfo.tsx"
+import { SyncProvider, useSync } from "./context/syncontext.tsx"
 
 const App = () => {
-  const [username, setusername] = useState("");
-  const room :string = "roomsdg";
+
+  const { createroom, shared, aler, setaler, socket } = useSync();
+  
   return (
-    <>
-      <Inputtext onUsernameChange={setusername} ></Inputtext>
+    <SyncProvider>
+      < Inputtext content='Username' ></Inputtext>
       <span>
         <button onClick={() => { socket.connect() }} >connect</button>
       </span>
-      <button onClick={() => { joining(room,username) }}> jion the room </button> 
-      <Clipboardy t_content={history} room={rooms}></Clipboardy>
-    </>
+      <button onClick={createroom}> Create the room </button>
+      {aler && <Inputtext content='Room-code' />}
+      <button onClick={() => { setaler(true) }}> join the room </button>
+      {shared && < Sharedroominfo sharedcontect='Room Code'></Sharedroominfo>}
+      <Clipboardy />
+    </SyncProvider>
   )
 }
 

@@ -1,20 +1,27 @@
-import React, { useState, type ReactNode } from 'react'
+import { useState } from 'react'
+import { useSync } from '../context/syncontext';
 
 interface Props {
-  onUsernameChange: (username: string) => void; // checking weather username vaild or not ? , i'm using stocketio here so if want check i had to send to server ? .emit() ? but how can i send back to server ? // what if i make event name by combing so , like add username of both ? we can send to sever , like put include the if then server recive work done , but how do send back to server , i can't made event like while running or can , send seding function , i can do this ? 
+  content: string;
 }
 
-const Inputtext = ({ onUsernameChange }: Props) => {
+const Inputtext = ({ content }: Props) => {
+  const { setUsername, joingreq, setaler, setroom } = useSync();
   const [username, setusername] = useState(""); // do i have to render it or make this userstate , but don't passing hook from parent force it already ? 
   return (
     <>
       <div className="input-group mb-3">
         <span className="input-group-text" id="basic-addon1">@</span>
-        <input value={username} type="text" className="form-control" placeholder="Username"
+        <input value={username} type="text" className="form-control" placeholder={content}
           onChange={(e) => {
             setusername(e.target.value);
-            onUsernameChange(username);
+            if (content == "Username") {
+              setUsername(e.target.value);
+            } else if (content == "Room-code") {
+              setroom(e.target.value);
+            }
           }} />
+        <button onClick={() => { joingreq(), setaler(false) }}>throw it</button>
       </div>
     </>
   )
