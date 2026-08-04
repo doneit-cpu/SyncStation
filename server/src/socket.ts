@@ -9,6 +9,7 @@ export function setupSocket(io: Server) {
     io.on("connection", (socket) => {
 
         socket.on("join-room", (data: Clientinfo) => {
+            console.log("7","last one");
             console.log("person has joied", socket.id)
             clients.set(socket.id, data); // map are diff here
             socket.join(data.room);  //  main thing 
@@ -16,8 +17,7 @@ export function setupSocket(io: Server) {
         });
 
         socket.on("Syc-msgS", (data) => { // got from user 
-            
-            socket.emit("b", data);
+            console.log("data send from the first node , socket.iofrom server read it ")
             socket.to(clients.get(socket.id)!.room).emit("Syc-msgC", data);
         });
 
@@ -29,6 +29,7 @@ export function setupSocket(io: Server) {
         })
 
         socket.on("pre-joinreq", (data: string, username: string) => {
+            console.log("4")
             const room = io.of("/").adapter.rooms.get(data);
             socket.emit("done-joinreq", data, username, room);
         })

@@ -12,16 +12,25 @@ const Inputtext = ({ content }: Props) => {
     <>
       <div className="input-group mb-3">
         <span className="input-group-text" id="basic-addon1">@</span>
-        <input value={username} type="text" className="form-control" placeholder={content}
+        <input value={username} type="text" className="form-control" title="Enter a longer or same 6 digit value" placeholder={content}
           onChange={(e) => {
+            const val=e.target.value;
             setusername(e.target.value);
-            if (content == "Username") {
-              setUsername(e.target.value);
-            } else if (content == "Room-code") {
-              setroom(e.target.value);
+            if (content === "Username") {
+              setUsername(val);
+            } else if (content === "Room-code") {
+              setroom(val);
             }
           }} />
-        <button onClick={() => { joingreq(), setaler(false) }}>throw it</button>
+        <button onClick={() => {
+          if (username.length <= 5) {
+            alert("Please enter a value!");
+            return;
+          }if(content === "Room-code"){
+            joingreq();
+          }        
+            setaler(false);
+        }}>throw it</button>
       </div>
     </>
   )

@@ -7,24 +7,38 @@
 import Inputtext from "./components/inputtext.tsx"
 import Clipboardy from "../src/components/clipboard.tsx"
 import Sharedroominfo from "./components/sharedroominfo.tsx"
-import { SyncProvider, useSync } from "./context/syncontext.tsx"
+import { useSync } from "./context/syncontext.tsx"
+import { useEffect } from "react"
 
 const App = () => {
 
-  const { createroom, shared, aler, setaler, socket } = useSync();
-  
+  const { createroom, shared, setroom, aler, setaler, socket ,linkjoinreq } = useSync();
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const roomcode = params.get('room');
+    if (roomcode) {
+      setroom(roomcode);
+      console.log("inside qr code processing");
+      linkjoinreq(roomcode);
+
+    }
+  }, [])
+
+
+
   return (
-    <SyncProvider>
+    <>
       < Inputtext content='Username' ></Inputtext>
       <span>
         <button onClick={() => { socket.connect() }} >connect</button>
       </span>
-      <button onClick={createroom}> Create the room </button>
+      <button onClick={() => { createroom()}}> Create the room </button>
       {aler && <Inputtext content='Room-code' />}
       <button onClick={() => { setaler(true) }}> join the room </button>
       {shared && < Sharedroominfo sharedcontect='Room Code'></Sharedroominfo>}
       <Clipboardy />
-    </SyncProvider>
+    </>
   )
 }
 

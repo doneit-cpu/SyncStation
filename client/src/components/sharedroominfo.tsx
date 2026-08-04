@@ -1,5 +1,6 @@
 import "/home/godz/Desktop/Reactfast/SyncStation/client/src/components/sharedroom.css";
 import { useSync } from "../context/syncontext";
+import QRCode from "react-qr-code";
 
 interface Props {
   sharedcontect: string | "sharing info"
@@ -10,15 +11,13 @@ interface Props {
 const Sharedroominfo = ({ sharedcontect }: Props) => {
   
   const {setshared , room} = useSync();
+
+  const joinLink=window.location.origin+"/?room="+room;
   //how to make link for this room where with just clicked u can get joined into room
-
-    const copyCode = async ()=> {
-    await navigator.clipboard.writeText(room);
-    console.log(room);
-  }
   
-  const copyLink=()=>{
-
+  const copyLink= async ()=>{
+    await navigator.clipboard.writeText(joinLink);
+    alert("Link copied!")
   }
   
   return (
@@ -28,24 +27,15 @@ const Sharedroominfo = ({ sharedcontect }: Props) => {
 
         <p><strong>Room Code:</strong> {room}</p>
 
-        <button onClick={copyCode}>
-          Copy Code
-        </button>
+        {/* below is qr code made i don't know how */}
+        <div style={{background: 'white', padding:'16'}}>
+          <QRCode value={joinLink} size={150} />
+        </div>
 
         <p><strong>Invite Link:</strong></p>
-
-        <input
-          value={"copylink"} // display link here ,
-          readOnly
-        />
-
-        <button onClick={copyLink}>
-          Copy Link
-        </button>
-
-        <button onClick={()=>{setshared(false)}}>
-          Close
-        </button>
+        <input value={joinLink} readOnly/>
+        <button onClick={copyLink}>Copy Link</button>
+        <button onClick={()=>{setshared(false)}}>Close</button>
       </div>
     </div>
 

@@ -22,3 +22,5 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+/home/godz/Desktop/Reactfast/SyncStation/PLANNING.md
