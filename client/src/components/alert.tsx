@@ -1,8 +1,13 @@
-const Alert = () => {
+import { useSync } from "../context/syncontext"
 
+interface AlertProps {
+  message: string;
+}
+
+const Alert = ({ message }: AlertProps) => {
   return (
-    <div>
-      <Alert></Alert>    
+    <div className="alert">
+      {message}
     </div>
   )
 }

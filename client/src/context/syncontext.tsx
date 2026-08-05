@@ -11,6 +11,7 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
   const [shared, setshared] = useState(false);
   const [room, setroom] = useState("");
   const [aler, setaler] = useState(false);
+  const [problem ,setproblem]=useState("");
   // const [problem, setproblem] = useState("");
 
   // Functions to manipulate state

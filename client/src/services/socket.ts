@@ -10,15 +10,11 @@ export function connect() {
   socket.connect(); // os , device name , broweser , app , uesername ;
 }
 
-// export function reqjoing(roomName: string, username: string) {
-//   console.log("3")
-//   socket.emit("pre-joinreq", roomName, username) //make event name for room exist or not ,
-// }
-
 export function reqjoing(roomName: string, username: string){
   console.log("3")
   socket.emit("pre-joinreq",roomName,username) //make event name for room exist or not ,
 }
+
 export function joining(roomName: string, username: string) {
   const { os, device } = getDeviceInfo();
 
@@ -36,6 +32,5 @@ export function Send(data: string, room: string) {
   // send data client to server   
   console.log("data send from the first node , socket.io")
   socket.emit("Syc-msgS", data, room);
-
 }
 
