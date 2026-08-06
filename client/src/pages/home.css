@@ -1,0 +1,49 @@
+.home-card {
+  display: grid;
+  gap: 0px;
+  
+  
+  width: 90%;
+  /* 1. Makes it fluid: always 90% of screen width */
+
+  /* 2. Makes it "stop" growing at 1200px */
+
+  margin: 0 auto;
+  /* 3. Keeps it centered */
+}
+
+
+.girdway-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  
+  
+
+
+  /* 1. Makes it fluid: always 90% of screen width */
+
+  /* 2. Makes it "stop" growing at 1200px */
+
+  margin: 0 auto;
+  /* 3. Keeps it centered */
+}
+
+/* 2. Make sure header/footer span the whole width */
+.headstatusbar {
+  display: flex;
+  align-items: center;
+  
+}
+
+.headstatusbar button {
+  margin-left: auto;
+}
+
+/* 3. Responsive: Stack columns on phones */
+@media (max-width: 768px) {
+  .home-card {
+    grid-template-columns: 1fr;
+    /* Switch to 1 column */
+  }
+}

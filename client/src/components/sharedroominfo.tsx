@@ -1,4 +1,4 @@
-import "/home/godz/Desktop/Reactfast/SyncStation/client/src/components/sharedroom.css";
+import "./sharedroom.css";
 import { useSync } from "../context/syncontext";
 import QRCode from "react-qr-code";
 

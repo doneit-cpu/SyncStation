@@ -9,7 +9,7 @@ import { Server } from "socket.io";
 import { t_content } from "./controllers/clipboard.ts"
 import { setupSocket } from "./socket.ts"
 
-const app = express();
+const app = express(); 
 const server = http.createServer(app);
 
 export const io = new Server(server, {

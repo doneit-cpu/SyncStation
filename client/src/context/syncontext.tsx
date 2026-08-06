@@ -2,6 +2,11 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { joining, socket, reqjoing } from '../services/socket.ts';
 import { genRoomcode } from '../services/utlis.ts';
 
+interface AlertType {
+  message: string;
+  type: 'success' | 'error'| 'warning';
+}
+
 const SyncContext = createContext<any>(null);
 
 export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
@@ -10,8 +15,9 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
   const [history, setHistory] = useState<string[]>([]);
   const [shared, setshared] = useState(false);
   const [room, setroom] = useState("");
-  const [aler, setaler] = useState(false);
-  const [problem ,setproblem]=useState("");
+
+
+  const [alert, setalert] = useState<AlertType | null>(null); // custom alet object for custom alet on site
   // const [problem, setproblem] = useState("");
 
   // Functions to manipulate state
@@ -22,22 +28,31 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
 
     socket.on("connect", () => {
+      setalert({message:"Connected successfully.",
+        type:"success"
+      })
       console.log("Connected to server!");
     });
 
     socket.on("Syc-msgC", (data: string) => {  // take data from server 
       // way to find way put data into the device weather pc or phone 
-      console.log("something has come",data);
+      console.log("something has come", data);
       addToHistory(data);
     })
 
     socket.on("done-joinreq", (roomName: string, uesername: string, ans: boolean) => {
-      console.log("5",ans);
+      console.log("5", ans);
       if (ans) {
+        setalert({
+          message: " You joined the room || Device paired.",
+          type: "success"
+        })
         joining(roomName, uesername);
       } else {    // write code throw error or something that show user something went wrong ,
-        // setproblem(thing so just here ) // i done this can help me 
-        console.log("error bro find some glass then write roomcode  again ")
+        setalert({
+          message: "Room-code is invaild Or something went wrong",
+          type: "error"
+        })
       }
       // my question thta i had put this into else or just leave it ?   //i'm making 
       //set(!boolean) assuming the boolean will be flase and then we will take one and pls enter vaild code or anything  
@@ -46,10 +61,17 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
 
     socket.on("connect_error", (err) => {
       console.error("Connection Error:", err.message);
-      alert("Connection to server failed. Please check your internet or try again later.");
+      setalert({
+        message: "Connection to server failed. Please check your internet or try again later.",
+        type: "error"
+      });
     });
 
     socket.on("disconnect", (reason) => {
+      setalert({
+        message: "We lost u node , i will remember u",
+        type: "error"
+      });
       console.log("Disconnected:", reason);
     });
 
@@ -73,12 +95,12 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   const joingreq = () => {
-    console.log("2")
+    console.log("2");
     reqjoing(room, username);
   }
 
 
-  const linkjoinreq = (newroomcode: string) => {
+  const linkjoinreq = (newroomcode: string) => {   // work on it pls , we need to work ? 
     if (!socket.connected) {
       socket.connect(); // Ensure we are connected!
     }
@@ -92,7 +114,7 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   return (
-    <SyncContext.Provider value={{ username, setUsername, history, addToHistory, createroom, joingreq, shared, setshared, room, setroom, aler, setaler, socket, linkjoinreq }}>
+    <SyncContext.Provider value={{ username, setUsername, history, addToHistory, createroom, joingreq, shared, setshared, room, setroom, socket, linkjoinreq,alert , setalert }}>
       {children}
     </SyncContext.Provider>
   );

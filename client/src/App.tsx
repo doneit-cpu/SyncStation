@@ -9,6 +9,8 @@ import Clipboardy from "../src/components/clipboard.tsx"
 import Sharedroominfo from "./components/sharedroominfo.tsx"
 import { useSync } from "./context/syncontext.tsx"
 import { useEffect } from "react"
+import Sandbox from "./pages/sandbox.tsx"
+import Home  from "./pages/home.tsx"
 
 const App = () => {
 
@@ -29,7 +31,7 @@ const App = () => {
 
   return (
     <>
-      < Inputtext content='Username' ></Inputtext>
+      {/* < Inputtext content='Username' ></Inputtext>
       <span>
         <button onClick={() => { socket.connect() }} >connect</button>
       </span>
@@ -37,7 +39,8 @@ const App = () => {
       {aler && <Inputtext content='Room-code' />}
       <button onClick={() => { setaler(true) }}> join the room </button>
       {shared && < Sharedroominfo sharedcontect='Room Code'></Sharedroominfo>}
-      <Clipboardy />
+      <Clipboardy /> */}
+      <Home/>      
     </>
   )
 }

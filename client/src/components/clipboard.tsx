@@ -3,7 +3,7 @@ import { useSync } from "../context/syncontext.tsx"
 
 const Clipboardy = () => {
 
-  const { history, room } = useSync();
+  const { history, room , setalert } = useSync();
 
   const readClipboard = async () => {   // does asyc function would work prefectly 
     try {
@@ -22,7 +22,9 @@ const Clipboardy = () => {
     } catch (err) {
       // Handle error (permission denied, or clipboard busy)
       console.error("Failed to read clipboard:", err);
-      alert("Could not access clipboard. Please ensure you have granted permission.");
+      setalert({message:"Could not access clipboard. Please ensure you have granted permission.",
+        type:'error'
+      });
     }
   };
 
@@ -38,7 +40,9 @@ const Clipboardy = () => {
     } catch (err) {
       // Handle error
       console.error("Failed to write to clipboard:", err);
-      alert("Could not write to clipboard.");
+      setalert({message:"Could not write to clipboard.",
+        type:'error'
+      });
     }
   };
 
