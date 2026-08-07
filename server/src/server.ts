@@ -8,6 +8,7 @@ import { Server } from "socket.io";
 
 import { t_content } from "./controllers/clipboard.ts"
 import { setupSocket } from "./socket.ts"
+import {getLocalIp} from "./utlis.ts"
 
 const app = express(); 
 const server = http.createServer(app);
@@ -33,7 +34,7 @@ app.get("api/status",(req,res)=>{
 })
 
 if (fs.existsSync(clientDistPath)) {
-    console.log("✅ Frontend folder found at:", clientDistPath);
+    console.log("✅ Frontend folder found at:", clientDistPath , getLocalIp());
 } else {
     console.error("❌ Frontend folder NOT found at:", clientDistPath);
     console.log("Current directory is:", __dirname);

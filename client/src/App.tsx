@@ -9,7 +9,7 @@ import Clipboardy from "../src/components/clipboard.tsx"
 import Sharedroominfo from "./components/sharedroominfo.tsx"
 import { useSync } from "./context/syncontext.tsx"
 import { useEffect } from "react"
-import Sandbox from "./pages/sandbox.tsx"
+
 import Home  from "./pages/home.tsx"
 
 const App = () => {

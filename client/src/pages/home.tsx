@@ -1,12 +1,13 @@
 import Gateway from '../components/gateway'
+import Foote from '../components/foote'
 import "./home.css"
 
 const Home = () => {
   return (
     <div className='home-card'>
       <div className='headstatusbar'>
-        <h1>SYNCSTATION</h1>
-          <button onClick={() => { console.log("next to other page") }}><h3>Self-Host Guide</h3></button>
+        <h2>SYNCSTATION</h2>
+          <button onClick={() => { console.log("next to other page") }}>Self-Host Guide</button>
       </div>
       <div className='girdway-container'>
         <div className='left-panel'>
@@ -19,7 +20,7 @@ const Home = () => {
           <Gateway />
         </div>
       </div>
-      <div className='footer'> footer </div>
+     <Foote/>
     </div>
   )
 }

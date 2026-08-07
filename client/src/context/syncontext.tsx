@@ -1,10 +1,11 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { joining, socket, reqjoing } from '../services/socket.ts';
 import { genRoomcode } from '../services/utlis.ts';
+import { getPlatform } from '../services/utlis.ts';
 
 interface AlertType {
   message: string;
-  type: 'success' | 'error'| 'warning';
+  type: 'success' | 'error' | 'warning';
 }
 
 const SyncContext = createContext<any>(null);
@@ -15,7 +16,8 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
   const [history, setHistory] = useState<string[]>([]);
   const [shared, setshared] = useState(false);
   const [room, setroom] = useState("");
-
+  const [Lanip, setLanip] = useState("");
+  const [platfrom,setplatfrom]=useState("");
 
   const [alert, setalert] = useState<AlertType | null>(null); // custom alet object for custom alet on site
   // const [problem, setproblem] = useState("");
@@ -28,11 +30,18 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
 
     socket.on("connect", () => {
-      setalert({message:"Connected successfully.",
-        type:"success"
+      setalert({
+        message: "Connected successfully.",
+        type: "success"
       })
+      socket.emit("sendip", true);
+      setplatfrom(getPlatform());
       console.log("Connected to server!");
     });
+
+    socket.on("reciveip", (data) => {
+      setLanip(data);
+    })
 
     socket.on("Syc-msgC", (data: string) => {  // take data from server 
       // way to find way put data into the device weather pc or phone 
@@ -79,6 +88,7 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
       socket.off('Syc-msgC');
       socket.off('done-joinreq');
       socket.off('connect');
+      socket.off("reciveip");
       socket.off('connect_error');
       socket.off('disconnect');
     };
@@ -114,7 +124,7 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   return (
-    <SyncContext.Provider value={{ username, setUsername, history, addToHistory, createroom, joingreq, shared, setshared, room, setroom, socket, linkjoinreq,alert , setalert }}>
+    <SyncContext.Provider value={{ username, setUsername, history, addToHistory, createroom, joingreq, shared, setshared, room, setroom, socket, linkjoinreq, alert, setalert, Lanip ,platfrom }}>
       {children}
     </SyncContext.Provider>
   );
