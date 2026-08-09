@@ -3,9 +3,9 @@ import http from "http";
 import path from "path";
 import fs from "fs";
 import { tunnelmole } from "tunnelmole"
+
 import { Server } from "socket.io";
-
-
+import noderoutes from "./routes/noderoutes.ts"
 import { t_content } from "./controllers/clipboard.ts"
 import { setupSocket } from "./socket.ts"
 import {getLocalIp} from "./utlis.ts"
@@ -21,12 +21,17 @@ export const io = new Server(server, {
 });
 
 app.use(express.json());
-app.get("api/getgpt", t_content);
+app.get("/api/files",noderoutes)
+
+app.get("/api/ping",(req,res)=>{   //check user same lan network as server 
+  res.status(200);
+})
 
 const __dirname=path.resolve()
 
-app.use(express.static(path.join(__dirname, ".." ,"client","dist")))
+app.use("/uploads", express.static(path.join(__dirname, ".." ,"uploads"))) // so files can go server to user ? 
 
+app.use(express.static(path.join(__dirname, ".." ,"client","dist")))
 const clientDistPath = path.join(__dirname, ".." , "client", "dist");
 
 app.get("api/status",(req,res)=>{
@@ -39,6 +44,8 @@ if (fs.existsSync(clientDistPath)) {
     console.error("❌ Frontend folder NOT found at:", clientDistPath);
     console.log("Current directory is:", __dirname);
 }
+
+
 
 app.get((req:any, res:any) => {
   res.sendFile(path.join(__dirname, "client","dist","index.html"));

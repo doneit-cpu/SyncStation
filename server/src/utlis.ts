@@ -13,4 +13,3 @@ export function getLocalIp(): string {
   return '127.0.0.1';
 }
 
-console.log(`Give this IP to your friend: http://${getLocalIp()}:3000`);

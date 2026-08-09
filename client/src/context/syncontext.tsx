@@ -1,12 +1,14 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { joining, socket, reqjoing } from '../services/socket.ts';
-import { genRoomcode } from '../services/utlis.ts';
-import { getPlatform } from '../services/utlis.ts';
+import { getPlatform, isSamelan, genRoomcode  } from '../services/utlis.ts';
+import type { Fileinfo } from '../services/utlis.ts';
 
 interface AlertType {
   message: string;
-  type: 'success' | 'error' | 'warning';
+  type: 'success' | 'error' | 'warning' | 'info';
 }
+
+ type FileMap = Map<string, Fileinfo>;
 
 const SyncContext = createContext<any>(null);
 
@@ -17,11 +19,13 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
   const [shared, setshared] = useState(false);
   const [room, setroom] = useState("");
   const [Lanip, setLanip] = useState("");
-  const [platfrom,setplatfrom]=useState("");
+  const [platfrom, setplatfrom] = useState("");
+  const [lannet, setlannet] = useState(false);
 
-  const [alert, setalert] = useState<AlertType | null>(null); // custom alet object for custom alet on site
+  const [fileshareMap, setfileshareMap] = useState<FileMap>(new Map());
+  const [alerto, setalert] = useState<AlertType | null>(null); // custom alet object for custom alet on site
   // const [problem, setproblem] = useState("");
-
+  
   // Functions to manipulate state
   const addToHistory = (newContent: string) => {
     setHistory((prev) => [...prev, newContent]);
@@ -68,6 +72,14 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
       // make variable show that we are not having this room try again 
     })
 
+    socket.on("fileinfo", (data:Fileinfo)=>{ 
+      setfileshareMap((prevMap)=>{        // learn this 
+        const newMap=new Map(prevMap);
+        newMap.set(data.id,data);
+        return newMap;
+      });
+    })
+
     socket.on("connect_error", (err) => {
       console.error("Connection Error:", err.message);
       setalert({
@@ -79,7 +91,7 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
     socket.on("disconnect", (reason) => {
       setalert({
         message: "We lost u node , i will remember u",
-        type: "error"
+        type: "warning"
       });
       console.log("Disconnected:", reason);
     });
@@ -109,6 +121,17 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
     reqjoing(room, username);
   }
 
+  const checklan = async () => {
+    const same = await isSamelan(Lanip);
+    setlannet(same);
+    if (!same) {
+      setalert({
+        message: "You're not in the same network as the server, change network settings to access this feature",
+        type: "error"
+      });
+    }
+  };
+
 
   const linkjoinreq = (newroomcode: string) => {   // work on it pls , we need to work ? 
     if (!socket.connected) {
@@ -124,7 +147,7 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   return (
-    <SyncContext.Provider value={{ username, setUsername, history, addToHistory, createroom, joingreq, shared, setshared, room, setroom, socket, linkjoinreq, alert, setalert, Lanip ,platfrom }}>
+    <SyncContext.Provider value={{ username, setUsername, history, addToHistory, createroom, joingreq, shared, setshared, room, setroom, socket, linkjoinreq, alerto, setalert, Lanip, platfrom, lannet, checklan , fileshareMap }}>
       {children}
     </SyncContext.Provider>
   );

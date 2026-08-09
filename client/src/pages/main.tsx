@@ -1,12 +1,12 @@
-import React from 'react'
-import Clipboardy from '../components/clipboard'
+// import React from 'react'
+// import Clipboardy from '../components/clipboard'
 
-const Main = () => {
-  return (
-    <div>
+// const Main = () => {
+//   return (
+//     <div>
       
-    </div>
-  )
-}
+//     </div>
+//   )
+// }
 
-export default Main
+// export default Main

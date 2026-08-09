@@ -1,4 +1,4 @@
-import { Server, Socket } from "socket.io";
+import { Server } from "socket.io";
 import { s_content } from "./controllers/clipboard.ts"
 import type { Clientinfo } from "../../shared/types.ts"
 import { getLocalIp } from "./utlis.ts";

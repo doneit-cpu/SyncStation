@@ -1,15 +1,27 @@
+import { useEffect } from 'react';
 import { useSync } from "../context/syncontext"
-// make custom so it show alert or like green or red or something like that when wanted ? just add last three ward in problem sting what type of problem is this okay 
-// add more things about how u want to add or other things , got it 
 
 const Alert = () => {
 
-  const { alert } = useSync();
+  const { alerto, setalert } = useSync();
+
+  useEffect(() => {
+    if (alerto) {
+      const timer = setTimeout(() => {
+        setalert(null);
+      }, 3000); // Auto-dismiss after 3 seconds
+
+      // Cleanup: if alert changes or component unmounts, clear the timer
+      return () => clearTimeout(timer);
+    }
+  }, [alerto, setalert]);
+
+  if (!alerto) return null;
 
   return (
     <div
-      className={`p-3 rounded text-white ${alert.type === "success"? "bg-green-500": alert.type === "info"? "bg-blue-500": alert.type === "warning"? "bg-yellow-500": "bg-red-500"}`}>
-      {alert.massage}
+      className={`fixed top-5 right-5 p-3 rounded text-white z-50 ${alerto.type === "success"? "bg-green-500": alerto.type === "info"? "bg-blue-500": alerto.type === "warning"? "bg-yellow-500": "bg-red-500"}`}>
+      {alerto.message}
     </div>
   )
 }
