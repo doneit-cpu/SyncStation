@@ -21,9 +21,9 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
   const [Lanip, setLanip] = useState("");
   const [platfrom, setplatfrom] = useState("");
   const [lannet, setlannet] = useState(false);
-
+  const [isconnected, setisconnected] = useState(false);
   const [fileshareMap, setfileshareMap] = useState<FileMap>(new Map());
-  const [alerto, setalert] = useState<AlertType | null>(null); // custom alet object for custom alet on site
+  const [alert, setalert] = useState<AlertType | null>(null); // custom alet object for custom alet on site
   // const [problem, setproblem] = useState("");
   
   // Functions to manipulate state
@@ -34,6 +34,7 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
 
     socket.on("connect", () => {
+      setisconnected(true);
       setalert({
         message: "Connected successfully.",
         type: "success"
@@ -45,6 +46,7 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
 
     socket.on("reciveip", (data) => {
       setLanip(data);
+     
     })
 
     socket.on("Syc-msgC", (data: string) => {  // take data from server 
@@ -72,7 +74,8 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
       // make variable show that we are not having this room try again 
     })
 
-    socket.on("fileinfo", (data:Fileinfo)=>{ 
+    socket.on("filesharing-ev", (data:Fileinfo)=>{ 
+      console.log("we got files");
       setfileshareMap((prevMap)=>{        // learn this 
         const newMap=new Map(prevMap);
         newMap.set(data.id,data);
@@ -94,6 +97,11 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
         type: "warning"
       });
       console.log("Disconnected:", reason);
+      const timer = setTimeout(() => {
+        setisconnected(false);
+        setalert(null);
+      }, 4 * 60 * 1000); 
+      clearTimeout(timer);
     });
 
     return () => {
@@ -103,6 +111,7 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
       socket.off("reciveip");
       socket.off('connect_error');
       socket.off('disconnect');
+      socket.off('filesharing-ev')
     };
 
   }, [])
@@ -122,6 +131,7 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   const checklan = async () => {
+    console.log("where are having troble ")
     const same = await isSamelan(Lanip);
     setlannet(same);
     if (!same) {
@@ -147,7 +157,7 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   return (
-    <SyncContext.Provider value={{ username, setUsername, history, addToHistory, createroom, joingreq, shared, setshared, room, setroom, socket, linkjoinreq, alerto, setalert, Lanip, platfrom, lannet, checklan , fileshareMap }}>
+    <SyncContext.Provider value={{ username, setUsername, history, addToHistory, createroom, joingreq, shared, setshared, room, setroom, socket, linkjoinreq, alert, setalert, Lanip, platfrom, lannet, checklan , fileshareMap , isconnected , setisconnected }}>
       {children}
     </SyncContext.Provider>
   );

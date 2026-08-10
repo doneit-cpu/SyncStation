@@ -2,11 +2,11 @@ import { useSync } from "../context/syncontext.tsx"
 import "./gateway.css"
 
 const Gateway = () => {
-  const { createroom, joingreq, setusername, username, setroom, room } = useSync();
+  const { createroom, joingreq, setusername, username, setroom, room ,socket , checklan } = useSync();
 
   return (
     <div className='gateway-card'>
-      <h3>PAIRING GATEWAY</h3>
+      <h3>PAIRING GATEWAY</h3>z
       <h2>Connect your devices</h2>
 
       <div className="device-name">
@@ -22,7 +22,7 @@ const Gateway = () => {
         <div className='box'>
           <h4>HOST MODE</h4>
           <p>Open a new room.<br />Your computer becomes the bridge.</p>
-          <button className="button-gateway" onClick={createroom}>HOST NEW ROOM</button>
+          <button className="button-gateway" onClick={()=>{socket.connect(),createroom()} }>HOST NEW ROOM</button>
         </div>
 
         <div className='box'>
@@ -31,8 +31,8 @@ const Gateway = () => {
           <label><h6>ROOM CODE</h6></label>
           <input type='text' value={room} placeholder='E.G. XJ92'
             onChange={(e) => setroom(e.target.value)} />
-          <button className="button-gateway secondary" onClick={() => console.log("scan")}>SCAN QR WITH CAMERA</button>
-          <button className="button-gateway" onClick={joingreq}>JOIN ROOM</button>
+          <button className="button-gateway secondary" onClick={() => {console.log("scan"),checklan()}}>SCAN QR WITH CAMERA</button>
+          <button className="button-gateway" onClick={()=>{joingreq()}}>JOIN ROOM</button>
         </div>
       </div>
 

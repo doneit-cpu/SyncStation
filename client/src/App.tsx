@@ -16,7 +16,7 @@ import Home  from "./pages/home.tsx"
 
 const App = () => {
 
-  const {  setroom, alerto ,linkjoinreq } = useSync();
+  const {  setroom, alert ,linkjoinreq } = useSync();
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -25,7 +25,6 @@ const App = () => {
       setroom(roomcode);
       console.log("inside qr code processing");
       linkjoinreq(roomcode);
-
     }
   }, [])
 
@@ -40,7 +39,7 @@ const App = () => {
       <button onClick={() => { setaler(true) }}> join the room </button>
       {shared && < Sharedroominfo sharedcontect='Room Code'></Sharedroominfo>}
       <Clipboardy /> */}
-      {(alerto && <Alert/>)}
+      {(alert && <Alert/>)}
       <Home/>      
       <F />
     </>

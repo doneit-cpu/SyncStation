@@ -1,29 +1,34 @@
 import { useEffect } from 'react';
 import { useSync } from "../context/syncontext"
+import "./alert.css";
 
 const Alert = () => {
 
-  const { alerto, setalert } = useSync();
+  const { alert, setalert } = useSync();
 
   useEffect(() => {
-    if (alerto) {
+    if (alert) {
       const timer = setTimeout(() => {
         setalert(null);
       }, 3000); // Auto-dismiss after 3 seconds
 
-      // Cleanup: if alert changes or component unmounts, clear the timer
-      return () => clearTimeout(timer);
+      return () => clearTimeout(timer);// remove timer
     }
-  }, [alerto, setalert]);
+  }, [alert, setalert]);
 
-  if (!alerto) return null;
+  if (!alert) return null;
+const classMap: Record<string, string> = {
+        success: "alert-success",
+        error: "alert-error",
+        warning: "alert-warning",
+        info: "alert-info"
+      };
 
   return (
-    <div
-      className={`fixed top-5 right-5 p-3 rounded text-white z-50 ${alerto.type === "success"? "bg-green-500": alerto.type === "info"? "bg-blue-500": alerto.type === "warning"? "bg-yellow-500": "bg-red-500"}`}>
-      {alerto.message}
+    <div className={`alert-container ${classMap[alert.type]}`}>
+      {alert.message}
     </div>
-  )
-}
+  );
+};
 
-export default Alert
+export default Alert;

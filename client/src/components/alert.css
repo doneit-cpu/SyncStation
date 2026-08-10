@@ -1,0 +1,31 @@
+ .alert-container {
+   position: fixed;
+   top: 20px;
+   right: 20px;
+   padding: 16px;
+   border-radius: 8px;
+   color: white;
+   z-index: 50;
+   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+ }
+
+ .alert-success {
+   background-color: #22c55e;
+ }
+
+ /* green-500 */
+ .alert-error {
+   background-color: #ef4444;
+ }
+
+ /* red-500 */
+ .alert-warning {
+   background-color: #eab308;
+ }
+
+ /* yellow-500 */
+ .alert-info {
+   background-color: #3b82f6;
+ }
+
+ /* blue-500 */

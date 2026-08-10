@@ -46,7 +46,7 @@ export async function isSamelan(hostLanIp: string) {
 
   const controller = new AbortController(); // read this 
   const timeoutId = setTimeout(() => controller.abort(), 1000); // 1 sec timeout
-
+  console.log("it's reached here")
   try {
     const response = await fetch(`http://${hostLanIp}:3000/api/ping`, {
       signal: controller.signal,

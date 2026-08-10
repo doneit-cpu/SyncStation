@@ -5,7 +5,7 @@ import type { Fileinfo } from '../services/utlis.ts';
 
 const filesharing = () => {
 
-  const { Lanip, setalert, username ,fileshareMap , lannet , checklan} = useSync();
+  const { Lanip, setalert, username ,fileshareMap , lannet} = useSync();
   const filesArray=Array.from<Fileinfo>(fileshareMap.values())
   const [file, setfile] = useState<File | null>(null);
 
@@ -39,7 +39,7 @@ const filesharing = () => {
 
   }
 
-  if(!lannet) checklan();
+  
 
   return (
 
@@ -48,6 +48,7 @@ const filesharing = () => {
         <input type="file" onChange={(e: ChangeEvent<HTMLInputElement>) => setfile(e.target.files?.[0] || null)} />
         <button type="submit" >upload</button>
       </form>
+        <div><h1>God</h1></div>
       <ul>
         {filesArray.map((f)=>(
           <li key={f.id}>

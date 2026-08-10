@@ -3,14 +3,20 @@ import { s_content } from "./controllers/clipboard.ts"
 import type { Clientinfo } from "../../shared/types.ts"
 import { getLocalIp } from "./utlis.ts";
 
+export let io: Server;
+
 const clients = new Map<string, Clientinfo>; // the string here for socketid
 
-export function setupSocket(io: Server) {
+export function setupSocket(server: any) {
+    
+    io = new Server(server, {
+        cors: { origin: "*", methods: ["GET", "POST"] },
+    });
 
     io.on("connection", (socket) => {
 
         socket.on("join-room", (data: Clientinfo) => {
-            console.log("7","last one");
+            console.log("7", "last one");
             console.log("person has joied", socket.id)
             clients.set(socket.id, data); // map are diff here
             socket.join(data.room);  //  main thing 
@@ -39,10 +45,10 @@ export function setupSocket(io: Server) {
             console.error("Socket Error:", err);
         });
 
-        socket.on("sendip",(data)=>{
-            if(data){
-                const ip=getLocalIp();
-                socket.emit("reciveip",ip);
+        socket.on("sendip", (data) => {
+            if (data) {
+                const ip = getLocalIp();
+                socket.emit("reciveip", ip);
             }
         })
 

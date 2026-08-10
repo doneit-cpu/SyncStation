@@ -1,63 +1,61 @@
+import fs from "fs";
+import path from "path";
 import express from "express";
 import http from "http";
-import path from "path";
-import fs from "fs";
 import { tunnelmole } from "tunnelmole"
+import cors from "cors";
 
-import { Server } from "socket.io";
 import noderoutes from "./routes/noderoutes.ts"
-import { t_content } from "./controllers/clipboard.ts"
 import { setupSocket } from "./socket.ts"
-import {getLocalIp} from "./utlis.ts"
-
-const app = express(); 
+import { getLocalIp } from "./utlis.ts"
+import { startCleanup } from './controllers/filesharing.ts'
+const app = express();
 const server = http.createServer(app);
 
-export const io = new Server(server, {
-  cors: {
-    origin: "*",
-    methods: ["GET", "POST"],
-  },
-});
+setupSocket(server);
+
+app.use(cors({
+  origin: "*", // Allow requests from any origin (fine for a local tool)
+  methods: ["GET", "POST"],
+}));
 
 app.use(express.json());
-app.get("/api/files",noderoutes)
+app.use("/api/files",cors(),noderoutes)
 
-app.get("/api/ping",(req,res)=>{   //check user same lan network as server 
-  res.status(200);
+app.get("/api/ping", (req, res) => {   //check user same lan network as server 
+  res.status(200).json({ ok: true });
 })
 
-const __dirname=path.resolve()
+const __dirname = path.resolve()
+console.log(__dirname);
+const uploadpath=path.join(__dirname,"uploads")  // storage for file sharing 
+app.use("/uploads", express.static(uploadpath))  
+console.log(uploadpath ,"dsghsdghsdglusdhgpsdiugshdgious");
 
-app.use("/uploads", express.static(path.join(__dirname, ".." ,"uploads"))) // so files can go server to user ? 
+const clientDistPath = path.join(__dirname, "..", "client", "dist");  // Frontend
+app.use(express.static(clientDistPath));
 
-app.use(express.static(path.join(__dirname, ".." ,"client","dist")))
-const clientDistPath = path.join(__dirname, ".." , "client", "dist");
-
-app.get("api/status",(req,res)=>{
-  res.json({status:"SyncStation is Online"})
+app.get("api/status", (req, res) => {
+  res.json({ status: "SyncStation is Online" })
 })
 
 if (fs.existsSync(clientDistPath)) {
-    console.log("✅ Frontend folder found at:", clientDistPath , getLocalIp());
+  console.log("✅ Frontend folder found at:", clientDistPath, getLocalIp());
 } else {
-    console.error("❌ Frontend folder NOT found at:", clientDistPath);
-    console.log("Current directory is:", __dirname);
+  console.error("❌ Frontend folder NOT found at:", clientDistPath);
+  console.log("Current directory is:", __dirname);
 }
 
-
-
-app.get((req:any, res:any) => {
-  res.sendFile(path.join(__dirname, "client","dist","index.html"));
+app.get((req: any, res: any) => {
+  res.sendFile(path.join(__dirname, "client", "dist", "index.html"));
 });
-
-setupSocket(io);
 
 server.listen(3000, '0.0.0.0', async () => {
   const url = await tunnelmole({
     port: 3000
   })
   console.log("public url", url);
+  startCleanup(uploadpath);
 });
 
 
