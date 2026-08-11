@@ -5,9 +5,10 @@ import { io } from "../socket.ts";
 import type { Fileinfo } from "../../../shared/types";
 
 const filesrecords: Fileinfo[] = [];
-
+const uploadpath=path.join(process.cwd(), "..", "uploads");
+console.log(uploadpath);
 const storage = multer.diskStorage({
-  destination: 'uploads/',
+  destination: uploadpath,
   filename(req, file, callback) {
     callback(null, `${Date.now()}${req.body.Username || 'user'}-${file.originalname}`);
   },

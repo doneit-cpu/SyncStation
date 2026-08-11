@@ -28,9 +28,9 @@ app.get("/api/ping", (req, res) => {   //check user same lan network as server
 
 const __dirname = path.resolve()
 console.log(__dirname);
-const uploadpath=path.join(__dirname,"uploads")  // storage for file sharing 
+const uploadpath=path.join(__dirname,"..","uploads")  // storage for file sharing 
 app.use("/uploads", express.static(uploadpath))  
-console.log(uploadpath ,"dsghsdghsdglusdhgpsdiugshdgious");
+console.log(uploadpath ,"uploadpath");
 
 const clientDistPath = path.join(__dirname, "..", "client", "dist");  // Frontend
 app.use(express.static(clientDistPath));
