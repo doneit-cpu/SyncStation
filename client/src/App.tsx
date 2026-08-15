@@ -7,11 +7,12 @@
 // import Inputtext from "./components/inputtext.tsx"
 // import Clipboardy from "../src/components/clipboard.tsx"
 // import Sharedroominfo from "./components/sharedroominfo.tsx"
-import F from "./components/filesharing.tsx"
-import Alert from "./components/alert.tsx"
+// import F from "./components/filesharing.tsx"
+// import Alert from "./components/alert.tsx"
 import { useSync } from "./context/syncontext.tsx"
 import { useEffect } from "react"
-
+import M from "./pages/main.tsx"
+import S from "./pages/sandbox.tsx"
 import Home  from "./pages/home.tsx"
 
 const App = () => {
@@ -39,9 +40,8 @@ const App = () => {
       <button onClick={() => { setaler(true) }}> join the room </button>
       {shared && < Sharedroominfo sharedcontect='Room Code'></Sharedroominfo>}
       <Clipboardy /> */}
-      {(alert && <Alert/>)}
-      <Home/>      
-      <F />
+      <M />
+      {/* <S /> */}
     </>
   )
 }

@@ -1,0 +1,20 @@
+   .mainbody {
+     width: min(90%, 1200px); /* Use min() like in home.css */
+     margin: auto;
+     min-height: 1400px;
+   }
+  
+   .godgod{
+     display: grid;
+     grid-template-columns: 1fr 1fr; /* This is the key that makes it work in Home */
+     gap: 20px;
+     padding:15px;
+     border:2px solid black;
+     min-height: 70%; 
+    }
+   
+    .rightbox,
+    .leftpbox {
+      min-height:500px;
+      border: 2px solid black;
+    }
