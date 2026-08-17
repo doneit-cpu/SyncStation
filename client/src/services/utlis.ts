@@ -1,11 +1,9 @@
-
 export interface Fileinfo{
   id:string
   name:string;
   size:number;
   type:string;
   sender:string; // username and socket.id combination , but after user gone , it would shown upload or treat it as uniqe id okay 
-  downloadlink:string,
 }
 
 export function getDeviceInfo() { // fix this bit like we at least need to know os or device correct 

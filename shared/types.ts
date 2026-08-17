@@ -12,5 +12,4 @@ export interface Fileinfo{
   size:number;
   type:string;
   sender:string; // username and socket.id combination , but after user gone , it would shown upload or treat it as uniqe id okay 
-  downloadlink:string,
 }

@@ -1,4 +1,3 @@
-import type { ChangeEvent, DragEvent } from 'react'
 import { useState, useRef } from 'react';
 import { FileText, Image as ImageIcon, Music, FileCode, Archive, Eye, Download } from 'lucide-react';
 import axios from 'axios';
@@ -14,55 +13,96 @@ interface UploadProgress {
 }
 
 const Filesharing = () => {
+
+  const MAX_CLIENT_SIZE = 1024 * 1024 * 1024;
+
   const { Lanip, setalert, username, fileshareMap } = useSync();
   const filesArray = Array.from<Fileinfo>(fileshareMap.values());
   const [isDragActive, setIsDragActive] = useState(false);
   const [uploadstate, setuploadstate] = useState<Record<string, UploadProgress>>({});
   const fileinputRef = useRef<HTMLInputElement>(null);
 
+
   const handleUpload = async (files: File[]) => {
+
     if (files.length === 0) {
       setalert({ message: "Please select a file first", type: "warning" });
       return;
-    }
+    };
 
-    for (const file of files) {
-      const formdata = new FormData();
-      formdata.append('Files', file);
-      formdata.append('Username', username);
-      formdata.append('Lanip', Lanip);
-      formdata.append('Mata', JSON.stringify({ name: file.name, size: file.size, type: file.type }));
-
-      const fileKey = `${file.name}-${file.size}`;
-      const startTime = Date.now();
-
-      setuploadstate(prev => ({ ...prev, [fileKey]: { percentage: 0, speed: '0 KB/s', timeRemaining: '', status: 'uploading' } }));
-
-      try {
-        await axios.post(`http://${Lanip}:3000/api/files/uploads`, formdata, {
-          onUploadProgress: (ProgressEvent) => {
-            const { loaded, total } = ProgressEvent;
-            if (!total) return;
-
-            const currentPercent = Math.floor((loaded * 100) / total);
-            const totalTimeSeconds = (Date.now() - startTime) / 1000;
-            const bytespersecound = loaded / totalTimeSeconds;
-
-            const speed = bytespersecound > 1024 * 1024
-              ? `${(bytespersecound / (1024 * 1024)).toFixed(2)} MB/s`
-              : `${(bytespersecound / 1024).toFixed(2)} KB/s`;
-
-            setuploadstate(prev => ({
-              ...prev,
-              [fileKey]: { ...prev[fileKey], percentage: currentPercent, speed: speed }
-            }));
-          },
-        });
-        setuploadstate(prev => ({ ...prev, [fileKey]: { ...prev[fileKey], status: 'completed' } }));
-      } catch (err) {
-        console.error(err);
-        setuploadstate(prev => ({ ...prev, [fileKey]: { ...prev[fileKey], status: 'failed' } }));
+    const validFiles = files.filter(file => {
+      if (file.size > MAX_CLIENT_SIZE) {
+        setalert({ message: `File ${file.name} is too large (max 1GB)`, type: "error" });
+        return false;
       }
+      return true; 
+    });
+   
+    if (validFiles.length === 0) return;
+
+    await Promise.all(
+      files.map(async (file) => {
+        const formdata = new FormData();
+        formdata.append('Files', file);
+        formdata.append('Username', username);
+
+        const startTime = Date.now();
+        const fileKey = `${file.name}-${file.size}-${startTime}`;
+
+        setuploadstate(prev => ({ ...prev, [fileKey]: { percentage: 0, speed: '0 KB/s', timeRemaining: '', status: 'uploading' } }));
+
+        try {
+          await axios.post(`http://${Lanip}:3000/api/files/uploads`, formdata, {
+            onUploadProgress: (ProgressEvent) => {
+              const { loaded, total } = ProgressEvent;
+              if (!total) return;
+
+              const currentPercent = Math.floor((loaded * 100) / total);
+              const totalTimeSeconds = Math.max(
+                (Date.now() - startTime) / 1000,
+                0.001
+              );
+              const bytespersecound = loaded / totalTimeSeconds;
+
+              const speed = bytespersecound > 1024 * 1024
+                ? `${(bytespersecound / (1024 * 1024)).toFixed(2)} MB/s`
+                : `${(bytespersecound / 1024).toFixed(2)} KB/s`;
+
+              setuploadstate(prev => ({
+                ...prev,
+                [fileKey]: { ...prev[fileKey], percentage: currentPercent, speed: speed }
+              }));
+            },
+          });
+          setuploadstate(prev => ({ ...prev, [fileKey]: { ...prev[fileKey], status: 'completed' } }));
+        } catch (err) {
+          console.error(err);
+          setuploadstate(prev => ({ ...prev, [fileKey]: { ...prev[fileKey], status: 'failed' } }));
+        }
+      }));
+  }
+
+  const handleDownload = async (id: string, name: string) => {
+    try {
+      const response = await fetch(`http://${Lanip}:3000/api/files/download/${id}`);
+      if (response.status === 404) {
+        setalert({ message: "File not found or has been deleted.", type: "error" });
+        return;
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+
+    } catch (err) {
+      console.error(err)
+      setalert({ message: "Download failed.", type: "error" });
     }
   };
 
@@ -121,14 +161,15 @@ const Filesharing = () => {
               </div>
               <div className="flex items-center gap-1">
                 <button className="p-1.5 hover:bg-slate-800 text-slate-400 rounded"><Eye className="w-3.5 h-3.5" /></button>
-                <a href={f.downloadlink} download={f.name} className="p-1.5 hover:bg-slate-800 text-cyan-400 rounded"><Download className="w-3.5 h-3.5"
-                /></a>
+                <button onClick={() => handleDownload(f.id, f.name)} className="p-1.5 hover:bg-slate-800 text-cyan-400 rounded">
+                  <Download className="w-3.5 h-3.5" />
+                </button>
               </div>
             </div>
           ))}
         </div>
       </div>
-    </div>
+    </div >
   );
 };
 

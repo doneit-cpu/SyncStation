@@ -3,10 +3,15 @@ import path from "path";
 import multer from "multer";
 import { io } from "../socket.ts";
 import type { Fileinfo } from "../../../shared/types";
+import { godgod } from "../../../uploads/chec.ts";
+
 
 const filesrecords: Fileinfo[] = [];
-const uploadpath=path.join(process.cwd(), "..", "uploads");
+const __dirname = path.resolve();
+const uploadpath = path.join(__dirname, "..", "..", "..", "uploads");
+
 console.log(uploadpath);
+
 const storage = multer.diskStorage({
   destination: uploadpath,
   filename(req, file, callback) {
@@ -14,7 +19,25 @@ const storage = multer.diskStorage({
   },
 });
 
-export const upload = multer({ storage });
+export function downloadFile(req: any, res: any) {
+  const filename = req.params.filename; // Get filename from the URL
+  const filePath = path.join(uploadpath, filename); // path to your uploads folder
+
+  if (!fs.existsSync(filePath)) {
+    return res.stats(404).json({ error: "file not found or has been deleted" });
+  }
+
+  res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+  res.sendFile(filePath);
+}
+
+const MAX_SERVER_SIZE = 1024 * 1024 * 1024;
+
+export const upload = multer({
+  storage, limits: {
+    fileSize: MAX_SERVER_SIZE
+  }
+});
 
 export function fileshare(req: any, res: any) {
 
@@ -22,10 +45,7 @@ export function fileshare(req: any, res: any) {
     return res.status(400).json({ error: "No file uploaded" });
   }
 
-  const clientLanip = req.body.Lanip;  // making sure u get lanip for lan network to work fast okay 
-
-  const download = `http://${clientLanip}:3000/uploads/${req.file.filename}`;
-  console.log(req.body.Mata);
+  console.log("file name", req.file.filename);
   console.log(req.file);
 
   const fileDetails: Fileinfo = {
@@ -34,7 +54,6 @@ export function fileshare(req: any, res: any) {
     name: req.file.originalname,
     size: req.file.size,
     type: req.file.mimetype,
-    downloadlink: download,
   };
 
   filesrecords.push(fileDetails);
@@ -80,7 +99,6 @@ const performCleanup = (folderPath: string) => {
           return;
         }
 
-        
         if (stats.isFile()) {
           const ageInMs = Date.now() - stats.mtimeMs;
 

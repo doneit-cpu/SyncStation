@@ -1,7 +1,7 @@
 import "./main.css"
-import F from "../components/filesharing"
-import React from 'react'
+import Filesharing from "../components/filesharing"
 import Clipboardy from '../components/clipboard'
+
 
 const Main = () => {
   return (
@@ -9,10 +9,8 @@ const Main = () => {
       <h1>God god</h1>
       <div className='headerbar'>hih</div>
       <div className='godgod'>
-        <div className='rightbox'>
-          sdgs
-        </div>
-        <F />
+        <Clipboardy/>
+        <Filesharing />
       </div>
       <div className='audiocontainer'>sadgasdg</div>
       <div className='infobuttom'>asdgsadg</div>

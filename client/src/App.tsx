@@ -4,44 +4,20 @@
 //  only one person made ther fucking room code and then share , it ,also if u want to make one then u should check if person is not join in any group or anything okay , 
 // both after the whatever room would need render the page ? without dobout thingk about it 
 
-// import Inputtext from "./components/inputtext.tsx"
-// import Clipboardy from "../src/components/clipboard.tsx"
-// import Sharedroominfo from "./components/sharedroominfo.tsx"
-// import F from "./components/filesharing.tsx"
-// import Alert from "./components/alert.tsx"
-import { useSync } from "./context/syncontext.tsx"
-import { useEffect } from "react"
-import M from "./pages/main.tsx"
-import S from "./pages/sandbox.tsx"
+import { Route, Routes,  } from "react-router-dom"
+
 import Home  from "./pages/home.tsx"
+import Main from "./pages/main.tsx"
 
 const App = () => {
 
-  const {  setroom, alert ,linkjoinreq } = useSync();
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const roomcode = params.get('room');
-    if (roomcode) {
-      setroom(roomcode);
-      console.log("inside qr code processing");
-      linkjoinreq(roomcode);
-    }
-  }, [])
-
   return (
     <>
-      {/* < Inputtext content='Username' ></Inputtext>
-      <span>
-        <button onClick={() => { socket.connect() }} >connect</button>
-      </span>
-      <button onClick={() => { createroom()}}> Create the room </button>
-      {aler && <Inputtext content='Room-code' />}
-      <button onClick={() => { setaler(true) }}> join the room </button>
-      {shared && < Sharedroominfo sharedcontect='Room Code'></Sharedroominfo>}
-      <Clipboardy /> */}
-      <M />
-      {/* <S /> */}
+      <Routes>
+        <Route path='/home' element={<Home/>}/>
+        <Route path='/main' element={<Main/>}/>
+        <Route path='/main/?room' element={<Main/>}/>
+      </Routes>     
     </>
   )
 }

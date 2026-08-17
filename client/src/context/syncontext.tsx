@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { joining, socket, reqjoing } from '../services/socket.ts';
-import { getPlatform, isSamelan, genRoomcode  } from '../services/utlis.ts';
+import { getPlatform, isSamelan, genRoomcode } from '../services/utlis.ts';
 import type { Fileinfo } from '../services/utlis.ts';
 
 interface AlertType {
@@ -8,7 +8,7 @@ interface AlertType {
   type: 'success' | 'error' | 'warning' | 'info';
 }
 
- type FileMap = Map<string, Fileinfo>;
+type FileMap = Map<string, Fileinfo>;
 
 const SyncContext = createContext<any>(null);
 
@@ -25,7 +25,7 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
   const [fileshareMap, setfileshareMap] = useState<FileMap>(new Map());
   const [alert, setalert] = useState<AlertType | null>(null); // custom alet object for custom alet on site
   // const [problem, setproblem] = useState("");
-  
+
   // Functions to manipulate state
   const addToHistory = (newContent: string) => {
     setHistory((prev) => [...prev, newContent]);
@@ -46,7 +46,6 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
 
     socket.on("reciveip", (data) => {
       setLanip(data);
-     
     })
 
     socket.on("Syc-msgC", (data: string) => {  // take data from server 
@@ -74,11 +73,11 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
       // make variable show that we are not having this room try again 
     })
 
-    socket.on("filesharing-ev", (data:Fileinfo)=>{ 
+    socket.on("filesharing-ev", (data: Fileinfo) => {
       console.log("we got files");
-      setfileshareMap((prevMap)=>{        // learn this 
-        const newMap=new Map(prevMap);
-        newMap.set(data.id,data);
+      setfileshareMap((prevMap) => {        // learn this 
+        const newMap = new Map(prevMap);
+        newMap.set(data.id, data);
         return newMap;
       });
     })
@@ -100,7 +99,7 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
       const timer = setTimeout(() => {
         setisconnected(false);
         setalert(null);
-      }, 4 * 60 * 1000); 
+      }, 4 * 60 * 1000);
       clearTimeout(timer);
     });
 
@@ -117,17 +116,29 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
   }, [])
 
 
-  const createroom = () => {
-    console.log("1")
-    const code = genRoomcode();
-    joining(code, username);
-    setroom(code);
-    setshared(true);
+  const createroom = async () => {
+    try {
+      console.log("1")
+      const code = genRoomcode();
+      await joining(code, username);
+      setshared(true);
+      return true;
+    } catch (err) {
+      console.error(err);
+      setalert({ message: "Something went wrong here , can't Create room", type: 'error' })
+      return false;
+    }
   }
 
-  const joingreq = () => {
+  const joingreq = async () => {
     console.log("2");
-    reqjoing(room, username);
+    try {
+      await reqjoing(room, username);
+      return true;
+    } catch (err) {
+      console.error(err);
+      return false;
+    }
   }
 
   const checklan = async () => {
@@ -154,10 +165,10 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
       setUsername(tempUser);
       reqjoing(newroomcode, tempUser);
     }
-  }
+}
 
   return (
-    <SyncContext.Provider value={{ username, setUsername, history, addToHistory, createroom, joingreq, shared, setshared, room, setroom, socket, linkjoinreq, alert, setalert, Lanip, platfrom, lannet, checklan , fileshareMap , isconnected , setisconnected }}>
+    <SyncContext.Provider value={{ username, setUsername, history, addToHistory, createroom, joingreq, shared, setshared, room, setroom, socket, linkjoinreq, alert, setalert, Lanip, platfrom, lannet, checklan, fileshareMap, isconnected, setisconnected }}>
       {children}
     </SyncContext.Provider>
   );

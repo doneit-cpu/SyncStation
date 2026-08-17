@@ -12,7 +12,7 @@ const Sharedroominfo = ({ sharedcontect }: Props) => {
   
   const {setshared , room} = useSync();
 
-  const joinLink=window.location.origin+"/?room="+room;
+  const joinLink=window.location.origin+"/main"+"/?room="+room;
   //how to make link for this room where with just clicked u can get joined into room
   
   const copyLink= async ()=>{
