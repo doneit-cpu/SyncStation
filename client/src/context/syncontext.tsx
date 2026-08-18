@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { joining, socket, reqjoing } from '../services/socket.ts';
 import { getPlatform, isSamelan, genRoomcode } from '../services/utlis.ts';
-import type { Fileinfo } from '../services/utlis.ts';
+import type { Fileinfo , audiocontrol } from '../services/utlis.ts';
 
 interface AlertType {
   message: string;
@@ -30,7 +30,7 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
   const addToHistory = (newContent: string) => {
     setHistory((prev) => [...prev, newContent]);
   };
-
+  
   useEffect(() => {
 
     socket.on("connect", () => {

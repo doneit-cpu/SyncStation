@@ -3,7 +3,6 @@ import path from "path";
 import multer from "multer";
 import { io } from "../socket.ts";
 import type { Fileinfo } from "../../../shared/types";
-import { godgod } from "../../../uploads/chec.ts";
 
 
 const filesrecords: Fileinfo[] = [];

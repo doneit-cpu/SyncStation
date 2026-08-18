@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import express from "express";
-import http from "http";
+import https from "https";
 import { tunnelmole } from "tunnelmole"
 import cors from "cors";
 
@@ -10,7 +10,11 @@ import { setupSocket } from "./socket.ts"
 import { getLocalIp } from "./utlis.ts"
 import { startCleanup } from './controllers/filesharing.ts'
 const app = express();
-const server = http.createServer(app);
+
+const key = fs.readFileSync(path.join(process.cwd(),"key.pem"));
+const cert = fs.readFileSync(path.join(process.cwd(),"cert.pem"));
+
+const server = https.createServer({ key,cert},app);
 
 setupSocket(server);
 
@@ -51,11 +55,9 @@ app.get((req: any, res: any) => {
 });
 
 server.listen(3000, '0.0.0.0', async () => {
-  const url = await tunnelmole({
-    port: 3000
-  })
-  console.log("public url", url);
+  console.log(`https://${getLocalIp()}:3000/`)
   startCleanup(uploadpath);
 });
+
 
 

@@ -6,6 +6,17 @@ export interface Fileinfo{
   sender:string; // username and socket.id combination , but after user gone , it would shown upload or treat it as uniqe id okay 
 }
 
+export interface audiocontrol{
+  id:string
+  name:string;
+  play:boolean;
+  pause:boolean;
+  targetspot:string;
+  seek:string;
+  sender:string; // username and socket.id combination , but after user gone , it would shown upload or treat it as uniqe id okay 
+  link:string;
+}
+
 export function getDeviceInfo() { // fix this bit like we at least need to know os or device correct 
   const ua = navigator.userAgent;
   let os = "Unknown OS";
