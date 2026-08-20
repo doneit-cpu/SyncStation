@@ -1,7 +1,7 @@
 import { io } from "socket.io-client"
 import { getDeviceInfo } from "./utlis.ts";
 import type { Clientinfo } from "../../../shared/types.ts"  // add type when only sharing for type of thing 
-
+import type { audiocontrol } from "./utlis.ts"
 export const socket = io({   // we don't need to share or put link here bcs this going host in same port server and client so no worries 
   autoConnect: false,
 });
@@ -34,3 +34,6 @@ export function Send(data: string, room: string) {
   socket.emit("Syc-msgS", data, room);
 }
 
+export function audiosend(data: audiocontrol,room:string){
+  socket.emit('Syc-audio',data,room);
+}

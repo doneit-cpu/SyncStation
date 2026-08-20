@@ -35,9 +35,9 @@ const Filesharing = () => {
         setalert({ message: `File ${file.name} is too large (max 1GB)`, type: "error" });
         return false;
       }
-      return true; 
+      return true;
     });
-   
+
     if (validFiles.length === 0) return;
 
     await Promise.all(

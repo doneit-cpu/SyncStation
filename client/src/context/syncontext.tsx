@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { joining, socket, reqjoing } from '../services/socket.ts';
 import { getPlatform, isSamelan, genRoomcode } from '../services/utlis.ts';
-import type { Fileinfo , audiocontrol } from '../services/utlis.ts';
+import type { Fileinfo, audiocontrol } from '../services/utlis.ts';
 
 interface AlertType {
   message: string;
@@ -21,6 +21,11 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
   const [Lanip, setLanip] = useState("");
   const [platfrom, setplatfrom] = useState("");
   const [lannet, setlannet] = useState(false);
+  const [stop, setstop] = useState(false);
+  const [song, setsong] = useState(false);
+  const [currentTime, setcurrentTime] = useState(0);
+  const [selectitem, setselecteitem] = useState("");
+  const [wait,setwait]=useState(0);
   const [isconnected, setisconnected] = useState(false);
   const [fileshareMap, setfileshareMap] = useState<FileMap>(new Map());
   const [alert, setalert] = useState<AlertType | null>(null); // custom alet object for custom alet on site
@@ -30,7 +35,7 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
   const addToHistory = (newContent: string) => {
     setHistory((prev) => [...prev, newContent]);
   };
-  
+
   useEffect(() => {
 
     socket.on("connect", () => {
@@ -89,6 +94,17 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
         type: "error"
       });
     });
+
+    socket.on("done-audio",(data:audiocontrol)=>{
+      if(username!==data.sender){
+        setcurrentTime(data.timestamp);
+        setselecteitem(data.id);
+        setstop(data.play);
+        setsong(data.play);
+        setwait(Date.now()-data.synctime);
+
+      }  
+    })
 
     socket.on("disconnect", (reason) => {
       setalert({
@@ -165,10 +181,10 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
       setUsername(tempUser);
       reqjoing(newroomcode, tempUser);
     }
-}
+  }
 
   return (
-    <SyncContext.Provider value={{ username, setUsername, history, addToHistory, createroom, joingreq, shared, setshared, room, setroom, socket, linkjoinreq, alert, setalert, Lanip, platfrom, lannet, checklan, fileshareMap, isconnected, setisconnected }}>
+    <SyncContext.Provider value={{ username, setUsername, history, addToHistory, createroom, joingreq, shared, setshared, room, setroom, socket, linkjoinreq, alert, setalert, Lanip, platfrom, lannet, checklan, fileshareMap, isconnected, setisconnected ,stop, setstop ,song, setsong ,currentTime, setcurrentTime ,selectitem, setselecteitem,wait ,setwait}}>
       {children}
     </SyncContext.Provider>
   );

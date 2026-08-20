@@ -9,7 +9,7 @@ import clipboard from "clipboardy"
 export async function t_content() {
   setInterval(async () => {
     const content = await clipboard.read();
-    console.log("let's check",content);
+    console.log("let's check", content);
   }, 200);
 }
 
@@ -20,7 +20,7 @@ export async function t_content() {
 
 // get 
 
-export async function s_content(data:string) {
+export async function s_content(data: string) {
   console.log("we will overwritten")
   clipboard.write(data);
 }

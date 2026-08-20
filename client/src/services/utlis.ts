@@ -10,9 +10,8 @@ export interface audiocontrol{
   id:string
   name:string;
   play:boolean;
-  pause:boolean;
-  targetspot:string;
-  seek:string;
+  timestamp:number;
+  synctime:number;
   sender:string; // username and socket.id combination , but after user gone , it would shown upload or treat it as uniqe id okay 
   link:string;
 }

@@ -1,14 +1,15 @@
 import { Server } from "socket.io";
 import { s_content } from "./controllers/clipboard.ts"
-import type { Clientinfo } from "../../shared/types.ts"
+import type { Clientinfo, audiocontrol } from "../../shared/types.ts"
 import { getLocalIp } from "./utlis.ts";
+
 
 export let io: Server;
 
 const clients = new Map<string, Clientinfo>; // the string here for socketid
 
 export function setupSocket(server: any) {
-    
+
     io = new Server(server, {
         cors: { origin: "*", methods: ["GET", "POST"] },
     });
@@ -33,6 +34,11 @@ export function setupSocket(server: any) {
             // used this as diff rought or send diff data accorinding to platfrom  
             // socket.io-client does can recive the the info so y don't we made diff event for lp,pwa , browser 
 
+        })
+
+        socket.on("Syc-audio", (data: audiocontrol, rooms:string) => {
+            console.log("readed server from audiocast")
+            socket.to(rooms).emit("done-audio", data);;
         })
 
         socket.on("pre-joinreq", (data: string, username: string) => {
