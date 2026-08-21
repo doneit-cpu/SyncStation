@@ -1,7 +1,7 @@
 /// first send the user all song file if they want to play like list ? okay , now two things if want hear do alone if not do it broadcast it 
 // other cool thing getDisplayMedia() can give u whole ? audio from all pc like chrome tab to vlc or any other video (decoder) player 
 
-import { useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { useSync } from '../context/syncontext'
 import type { Fileinfo, audiocontrol } from "../services/utlis"
 import { audiosend } from "../services/socket"
@@ -14,7 +14,7 @@ interface playlist {
 
 const Audio = () => {
 
-  const { fileshareMap, username, room, selectitem, setselecteitem, stop, setstop, song, setsong, currentTime, setcurrentTime, wait ,setwait } = useSync();
+  const { fileshareMap, username, room, selectitem, setselecteitem, socket, isplay, setisplay, song, setsong, autoplay, setautoplay, setalert } = useSync();
 
   const arraylist = Array.from<Fileinfo>(fileshareMap.values());
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -32,28 +32,66 @@ const Audio = () => {
       }
     })
 
-  const playatTime = (seconds: number, pause: boolean) => {
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.on("done-audio", (data: audiocontrol) => {
+
+      if (data.sender == username) return;
+
+      setsong(true);
+
+      if (selectitem != data.id) {
+        setselecteitem(data.id);
+        setautoplay(true);
+      }
+
+      const delay = Math.max(0, data.synctime - Date.now());
+      setTimeout(() => {
+        if (!audioRef.current) {
+          setalert({ message: "Something went wrong with audio cast", type: "error" })
+        }
+        audioRef.current!.currentTime = data.timestamp;
+        if (data.play) {
+          audioRef.current!.play();
+        } else {
+          audioRef.current!.pause();
+        }
+      }, delay);
+    })
+
+    return () => {
+      socket.off("done-audio");
+    }
+  }, [username]
+  )
+
+  const playatTime = (seconds: number, pause: boolean, delay: number) => {
+
     if (!audioRef.current) return;
+
     const playingtime = audioRef.current?.currentTime;
-    audioRef.current.currentTime = playingtime + seconds;
-    setcurrentTime(playingtime + seconds);  // let wait bit maybe see ur self 
-    const data: audiocontrol = {
+    const newTime = playingtime + seconds;
+    audioRef.current.currentTime = newTime;
+     
+
+    const data: audiocontrol = {    //i had collected data to data
       id: selectitem,
       name: selectitem.slice(19, -1),
-      play: stop,
-      timestamp: playingtime + seconds,
-      synctime: Date.now() + wait,
+      play: isplay,
+      timestamp: newTime,
+      synctime: Date.now() + delay,
       sender: username,
-      link: `uploads/${selectitem}`
     }
     audiosend(data, room);
-    setInterval(() => {
+
+    setTimeout(() => {
       if (pause) {
         audioRef.current!.play();
       } else {
         audioRef.current!.pause();
       }
-    }, wait);
+    }, delay);
   }
 
 
@@ -67,28 +105,26 @@ const Audio = () => {
         <div className='songlist'>
           <div className='rightplaycontrol'>
             <h2>{`Song playing is :${selectitem.slice(19, -1)}`}</h2>
-            <audio preload="auto" hidden ref={audioRef} src={`uploads/${selectitem}`}
-              onCanPlay={() => {
-                if (song)
-                setstop(true)
-                playatTime(0, true);
-                setwait(500);
-              }}></audio>
+            <audio hidden ref={audioRef} src={`uploads/${selectitem}`} onCanPlay={() => {
+              if (!autoplay) return;
+
+              playatTime(0, true, 500)
+              setautoplay(false);
+            }}></audio>
             <button className='controlbtn' onClick={() => {
-              const see = !stop;
-              let lo = "play";
-              setstop(see);
-              if (see) { playatTime(0, see),setwait(100), lo = "pause" }
-              else { playatTime(0, see),setwait(0) }
-            }}>{stop ? "PAUSE" : "PLAY"}</button>  // i don;t know how to put play or pause here
-            <button className='controlbtn' onClick={() => { playatTime(+5, stop),setwait(150) }}>+5</button>
-            <button className='controlbtn' onClick={() => { playatTime(-5, stop),setwait(150) }}>-5</button>
+              const see = !isplay;
+              setisplay(see);
+              if (see) { playatTime(0, see, 100) }
+              else { playatTime(0, see, 100) }
+            }}>{isplay ? "PAUSE" : "PLAY"}</button>  // i don;t know how to put play or pause here
+            <button className='controlbtn' onClick={() => { playatTime(+5, isplay, 150) }}>+5</button>
+            <button className='controlbtn' onClick={() => { playatTime(-5, isplay, 150) }}>-5</button>
           </div>
           <div className='leftitemlist' >
             {audiofilelist.map((f) => (
               <div key={f.id} onClick={() => {
                 setselecteitem(f.id);
-                ;
+                setautoplay(true);
               }}
               >{`${f.filename} ${f.displayname}`}
               </div>
@@ -101,3 +137,4 @@ const Audio = () => {
 }
 
 export default Audio
+

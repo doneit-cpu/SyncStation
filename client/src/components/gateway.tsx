@@ -17,6 +17,7 @@ const Gateway = () => {
   }
 
   const handlejoinroom = async () => {
+    socket.connect();
     const success = await joingreq();
     if (success) {
       navigate("/main");

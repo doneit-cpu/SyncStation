@@ -52,7 +52,7 @@ const Filesharing = () => {
         setuploadstate(prev => ({ ...prev, [fileKey]: { percentage: 0, speed: '0 KB/s', timeRemaining: '', status: 'uploading' } }));
 
         try {
-          await axios.post(`http://${Lanip}:3000/api/files/uploads`, formdata, {
+          await axios.post(`https://${Lanip}:3000/api/files/uploads`, formdata, {
             onUploadProgress: (ProgressEvent) => {
               const { loaded, total } = ProgressEvent;
               if (!total) return;
@@ -84,7 +84,7 @@ const Filesharing = () => {
 
   const handleDownload = async (id: string, name: string) => {
     try {
-      const response = await fetch(`http://${Lanip}:3000/api/files/download/${id}`);
+      const response = await fetch(`https://${Lanip}:3000/api/files/download/${id}`);
       if (response.status === 404) {
         setalert({ message: "File not found or has been deleted.", type: "error" });
         return;

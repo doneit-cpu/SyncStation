@@ -3,7 +3,7 @@ import { useSync } from "../context/syncontext.tsx"
 
 const Clipboardy = () => {
 
-  const { history, room , setalert } = useSync();
+  const { history, room , setalert ,checklan} = useSync();
 
   const readClipboard = async () => {   // does asyc function would work prefectly 
     try {
@@ -48,7 +48,7 @@ const Clipboardy = () => {
 
   return (
     <div>
-      <button onClick={readClipboard}>Read Clipboard</button>
+      <button onClick={()=>{readClipboard(),checklan()}}>Read Clipboard</button>
       <button onClick={writeClipboard}>Write Clipboard</button>
     </div>
   );

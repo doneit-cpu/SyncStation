@@ -1,7 +1,7 @@
 import "./main.css"
 import Filesharing from "../components/filesharing"
 import Clipboardy from '../components/clipboard'
-
+import Audio from "../components/audio"
 
 const Main = () => {
   return (
@@ -12,7 +12,9 @@ const Main = () => {
         <Clipboardy/>
         <Filesharing />
       </div>
-      <div className='audiocontainer'>sadgasdg</div>
+      <div className='audiocontainer'>
+        <Audio/>
+      </div>
       <div className='infobuttom'>asdgsadg</div>
     </div>
   )

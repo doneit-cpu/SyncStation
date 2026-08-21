@@ -13,7 +13,6 @@ export interface audiocontrol{
   timestamp:number;
   synctime:number;
   sender:string; // username and socket.id combination , but after user gone , it would shown upload or treat it as uniqe id okay 
-  link:string;
 }
 
 export function getDeviceInfo() { // fix this bit like we at least need to know os or device correct 
@@ -56,7 +55,7 @@ export async function isSamelan(hostLanIp: string) {
   const timeoutId = setTimeout(() => controller.abort(), 1000); // 1 sec timeout
   console.log("it's reached here")
   try {
-    const response = await fetch(`http://${hostLanIp}:3000/api/ping`, {
+    const response = await fetch(`https://${hostLanIp}:3000/api/ping`, {
       signal: controller.signal,
     });
     clearTimeout(timeoutId);

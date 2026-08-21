@@ -4,21 +4,20 @@
 //  only one person made ther fucking room code and then share , it ,also if u want to make one then u should check if person is not join in any group or anything okay , 
 // both after the whatever room would need render the page ? without dobout thingk about it 
 
-import { Route, Routes,  } from "react-router-dom"
+import {  Navigate, Route, Routes, } from "react-router-dom"
 
-import Home  from "./pages/home.tsx"
+import Home from "./pages/home.tsx"
 import Main from "./pages/main.tsx"
 
 const App = () => {
 
   return (
-    <>
-      <Routes>
-        <Route path='/home' element={<Home/>}/>
-        <Route path='/main' element={<Main/>}/>
-        <Route path='/main/?room' element={<Main/>}/>
-      </Routes>     
-    </>
+    <Routes>
+      <Route path="/" element={<Navigate to="/home" replace />} />
+      <Route path="/home" element={<Home />} />
+      <Route path="/main" element={<Main />} />
+    </Routes>
+
   )
 }
 

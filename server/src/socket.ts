@@ -54,6 +54,7 @@ export function setupSocket(server: any) {
         socket.on("sendip", (data) => {
             if (data) {
                 const ip = getLocalIp();
+                console.log("send it ip");
                 socket.emit("reciveip", ip);
             }
         })
