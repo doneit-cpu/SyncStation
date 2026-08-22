@@ -5,7 +5,7 @@ import "./gateway.css"
 
 const Gateway = () => {
   
-  const { createroom, joingreq, setusername, username, setroom, room, socket, checklan , linkjoinreq } = useSync();
+  const { createroom, joingreq, setUsername, username, setroom, room, socket, checklan , linkjoinreq } = useSync();
   const navigate = useNavigate();
 
   const handlecreateroom = async () => {
@@ -36,14 +36,14 @@ const Gateway = () => {
 
   return (
     <div className='gateway-card'>
-      <h3>PAIRING GATEWAY</h3>z
+      <h3>PAIRING GATEWAY</h3>
       <h2>Connect your devices</h2>
 
       <div className="device-name">
         <label><h6>DEVICE NAME</h6></label>
         <div className="input-with-button">
           <input type='text' value={username} placeholder="Guest_3861"
-            onChange={(e) => setusername(e.target.value)} />
+            onChange={(e) => {setUsername(e.target.value)}} />
           <button className="small-button">SAVED</button>
         </div>
       </div>
@@ -60,7 +60,7 @@ const Gateway = () => {
           <p>Enter an existing room<br />using room code or QR.</p>
           <label><h6>ROOM CODE</h6></label>
           <input type='text' value={room} placeholder='E.G. XJ92'
-            onChange={(e) => setroom(e.target.value)} />
+            onChange={(e) =>{ setroom(e.target.value)}} />
           <button className="button-gateway secondary" onClick={() => { console.log("scan"), checklan() }}>SCAN QR WITH CAMERA</button>
           <button className="button-gateway" onClick={() => { handlejoinroom() }}>JOIN ROOM</button>
         </div>
@@ -72,3 +72,7 @@ const Gateway = () => {
 }
 
 export default Gateway
+
+
+
+// host of the room was able to send the file but can't see on other end of user or member , or even it self , but when userjoined it was able to send also name and type showed in the room , also download path is bif f ? 

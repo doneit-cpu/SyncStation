@@ -1,13 +1,17 @@
 import Gateway from '../components/gateway'
 import Foote from '../components/foote'
+import Alert from '../components/alert'
+import { useSync } from '../context/syncontext'
 import "./home.css"
 
 const Home = () => {
+  const { alertdata } = useSync();
   return (
     <div className='home-card'>
+      {alertdata && <Alert />}
       <div className='headstatusbar'>
         <h2>SYNCSTATION</h2>
-          <button onClick={() => { console.log("next to other page") }}>Self-Host Guide</button>
+        <button onClick={() => { console.log("next to other page") }}>Self-Host Guide</button>
       </div>
       <div className='girdway-container'>
         <div className='left-panel'>
@@ -20,7 +24,7 @@ const Home = () => {
           <Gateway />
         </div>
       </div>
-     <Foote/>
+      <Foote />
     </div>
   )
 }

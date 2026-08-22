@@ -23,12 +23,11 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
   const [lannet, setlannet] = useState(false);
   const [isplay, setisplay] = useState(false);
   const [song, setsong] = useState(false);
-  
+  const [filename,setfilename]=useState("");
   const [selectitem, setselecteitem] = useState("");
-  const [autoplay,setautoplay]=useState(false);
   const [isconnected, setisconnected] = useState(false);
   const [fileshareMap, setfileshareMap] = useState<FileMap>(new Map());
-  const [alert, setalert] = useState<AlertType | null>(null); // custom alet object for custom alet on site
+  const [alertdata, setalert] = useState<AlertType | null>(null); // custom alet object for custom alet on site
   // const [problem, setproblem] = useState("");
 
   // Functions to manipulate state
@@ -50,7 +49,7 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
     });
 
     socket.on("reciveip", (data) => {
-      console.log("got ip0",data)
+      console.log("got ip0", data)
       setLanip(data);
     })
 
@@ -96,7 +95,7 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
       });
     });
 
- 
+
     socket.on("disconnect", (reason) => {
       setalert({
         message: "We lost u node , i will remember u",
@@ -128,8 +127,8 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
       console.log("1")
       const code = genRoomcode();
       console.log(code);
+      setroom(code); 
       await joining(code, username);
-      setshared(true);
       return true;
     } catch (err) {
       console.error(err);
@@ -176,7 +175,7 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   return (
-    <SyncContext.Provider value={{ username, setUsername, history, addToHistory, createroom, joingreq, shared, setshared, room, setroom, socket, linkjoinreq, alert, setalert, Lanip, platfrom, lannet, checklan, fileshareMap, isconnected, setisconnected ,isplay, setisplay ,song, setsong ,selectitem, setselecteitem,autoplay ,setautoplay}}>
+    <SyncContext.Provider value={{ username, setUsername, history, addToHistory, createroom, joingreq, shared, setshared, room, setroom, socket, linkjoinreq, alertdata, setalert, Lanip, platfrom, lannet, checklan, fileshareMap, isconnected, setisconnected, isplay, setisplay, song, setsong, selectitem, setselecteitem,filename,setfilename }}>
       {children}
     </SyncContext.Provider>
   );

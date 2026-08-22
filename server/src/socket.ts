@@ -38,7 +38,7 @@ export function setupSocket(server: any) {
 
         socket.on("Syc-audio", (data: audiocontrol, rooms:string) => {
             console.log("readed server from audiocast")
-            socket.to(rooms).emit("done-audio", data);;
+            socket.to(rooms).emit("done-audio", data);
         })
 
         socket.on("pre-joinreq", (data: string, username: string) => {
@@ -61,7 +61,7 @@ export function setupSocket(server: any) {
 
         socket.on("disconnect", (reason) => {
             clients.delete(socket.id);
-            console.log("goodbye frd:", reason, socket.id);
+            console.log("goodbye frd:", reason);
         });
     });
 }

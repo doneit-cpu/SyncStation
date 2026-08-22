@@ -4,29 +4,29 @@ import "./alert.css";
 
 const Alert = () => {
 
-  const { alert, setalert } = useSync();
+  const { alertdata, setalert } = useSync();
 
   useEffect(() => {
-    if (alert) {
+    if (alertdata) {
       const timer = setTimeout(() => {
         setalert(null);
       }, 3000); // Auto-dismiss after 3 seconds
 
       return () => clearTimeout(timer);// remove timer
     }
-  }, [alert, setalert]);
+  }, [alertdata, setalert]);
 
-  if (!alert) return null;
-const classMap: Record<string, string> = {
-        success: "alert-success",
-        error: "alert-error",
-        warning: "alert-warning",
-        info: "alert-info"
-      };
+  if (!alertdata) return null;
+  const classMap: Record<string, string> = {
+    success: "alert-success",
+    error: "alert-error",
+    warning: "alert-warning",
+    info: "alert-info"
+  };
 
   return (
-    <div className={`alert-container ${classMap[alert.type]}`}>
-      {alert.message}
+    <div className={`alert-container ${classMap[alertdata.type]}`}>
+      {alertdata.message}
     </div>
   );
 };

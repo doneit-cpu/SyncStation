@@ -16,7 +16,7 @@ const Filesharing = () => {
 
   const MAX_CLIENT_SIZE = 1024 * 1024 * 1024;
 
-  const { Lanip, setalert, username, fileshareMap } = useSync();
+  const { Lanip, setalert, username, fileshareMap , room } = useSync();
   const filesArray = Array.from<Fileinfo>(fileshareMap.values());
   const [isDragActive, setIsDragActive] = useState(false);
   const [uploadstate, setuploadstate] = useState<Record<string, UploadProgress>>({});
@@ -45,6 +45,7 @@ const Filesharing = () => {
         const formdata = new FormData();
         formdata.append('Files', file);
         formdata.append('Username', username);
+        formdata.append('Roomcode',room)
 
         const startTime = Date.now();
         const fileKey = `${file.name}-${file.size}-${startTime}`;

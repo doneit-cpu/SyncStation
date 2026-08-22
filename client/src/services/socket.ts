@@ -2,17 +2,21 @@ import { io } from "socket.io-client"
 import { getDeviceInfo } from "./utlis.ts";
 import type { Clientinfo } from "../../../shared/types.ts"  // add type when only sharing for type of thing 
 import type { audiocontrol } from "./utlis.ts"
+
 export const socket = io({   // we don't need to share or put link here bcs this going host in same port server and client so no worries 
-  autoConnect: false,
+  reconnection: true,
+  reconnectionAttempts: 5,
+  reconnectionDelay: 2000,
+  autoConnect: true,
 });
 
 export function connect() {
   socket.connect(); // os , device name , broweser , app , uesername ;
 }
 
-export function reqjoing(roomName: string, username: string){
+export function reqjoing(roomName: string, username: string) {
   console.log("3")
-  socket.emit("pre-joinreq",roomName,username) //make event name for room exist or not ,
+  socket.emit("pre-joinreq", roomName, username) //make event name for room exist or not ,
 }
 
 export function joining(roomName: string, username: string) {
@@ -34,6 +38,6 @@ export function Send(data: string, room: string) {
   socket.emit("Syc-msgS", data, room);
 }
 
-export function audiosend(data: audiocontrol,room:string){
-  socket.emit('Syc-audio',data,room);
+export function audiosend(data: audiocontrol, room: string) {
+  socket.emit('Syc-audio', data, room);
 }

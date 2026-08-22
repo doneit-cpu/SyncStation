@@ -14,15 +14,19 @@ interface playlist {
 
 const Audio = () => {
 
-  const { fileshareMap, username, room, selectitem, setselecteitem, socket, isplay, setisplay, song, setsong, autoplay, setautoplay, setalert } = useSync();
+  const { fileshareMap, username, room, selectitem, setselecteitem, socket, isplay, setisplay, song, setsong,setalert,filename,setfilename } = useSync();
 
   const arraylist = Array.from<Fileinfo>(fileshareMap.values());
+
   const audioRef = useRef<HTMLAudioElement>(null);
+  const autoplayRef=useRef(false)
+  const selecitemRef=useRef(selectitem);
 
   const audiofilelist: playlist[] = arraylist
     .filter((file) => {
-      const extenstions = [".mp3", ".aac", ".m4a", ".wav", ".flac"]
-      return extenstions.includes(file.type);
+      const filetype = file.type;
+
+      return filetype.startsWith("audio/");
     })
     .map((file) => {
       return {
@@ -32,26 +36,32 @@ const Audio = () => {
       }
     })
 
+  useEffect(()=>{
+    selecitemRef.current=selectitem;
+  },[selectitem])  
+
   useEffect(() => {
     if (!socket) return;
 
     socket.on("done-audio", (data: audiocontrol) => {
 
+      console.log("end of the audio syc");
+
       if (data.sender == username) return;
 
       setsong(true);
 
-      if (selectitem != data.id) {
+      if (selecitemRef.current != data.id) {
         setselecteitem(data.id);
-        setautoplay(true);
       }
 
-      const delay = Math.max(0, data.synctime - Date.now());
+      const delay = Math.max(0, data.synctime - Date.now()-30);
       setTimeout(() => {
         if (!audioRef.current) {
           setalert({ message: "Something went wrong with audio cast", type: "error" })
         }
         audioRef.current!.currentTime = data.timestamp;
+        setisplay(data.play);
         if (data.play) {
           audioRef.current!.play();
         } else {
@@ -63,22 +73,21 @@ const Audio = () => {
     return () => {
       socket.off("done-audio");
     }
-  }, [username]
+  }, [username,selectitem]
   )
 
   const playatTime = (seconds: number, pause: boolean, delay: number) => {
-
+    console.log("first step of sync audio cast",seconds,pause,delay);
     if (!audioRef.current) return;
 
     const playingtime = audioRef.current?.currentTime;
     const newTime = playingtime + seconds;
     audioRef.current.currentTime = newTime;
-     
 
     const data: audiocontrol = {    //i had collected data to data
       id: selectitem,
       name: selectitem.slice(19, -1),
-      play: isplay,
+      play: pause,
       timestamp: newTime,
       synctime: Date.now() + delay,
       sender: username,
@@ -104,19 +113,19 @@ const Audio = () => {
       {song &&
         <div className='songlist'>
           <div className='rightplaycontrol'>
-            <h2>{`Song playing is :${selectitem.slice(19, -1)}`}</h2>
+            <h2>{`Song playing is :${filename}`}</h2>
             <audio hidden ref={audioRef} src={`uploads/${selectitem}`} onCanPlay={() => {
-              if (!autoplay) return;
-
-              playatTime(0, true, 500)
-              setautoplay(false);
+              if (!autoplayRef.current) return;
+              console.log("inside onCanplay")
+              autoplayRef.current=false;
+              playatTime(0, true, 700)
             }}></audio>
             <button className='controlbtn' onClick={() => {
               const see = !isplay;
               setisplay(see);
               if (see) { playatTime(0, see, 100) }
               else { playatTime(0, see, 100) }
-            }}>{isplay ? "PAUSE" : "PLAY"}</button>  // i don;t know how to put play or pause here
+            }}>{isplay ? "PAUSE" : "PLAY"}</button>
             <button className='controlbtn' onClick={() => { playatTime(+5, isplay, 150) }}>+5</button>
             <button className='controlbtn' onClick={() => { playatTime(-5, isplay, 150) }}>-5</button>
           </div>
@@ -124,7 +133,8 @@ const Audio = () => {
             {audiofilelist.map((f) => (
               <div key={f.id} onClick={() => {
                 setselecteitem(f.id);
-                setautoplay(true);
+                setfilename(f.filename);
+                autoplayRef.current=(true);
               }}
               >{`${f.filename} ${f.displayname}`}
               </div>
@@ -138,3 +148,7 @@ const Audio = () => {
 
 export default Audio
 
+
+
+
+// git commit

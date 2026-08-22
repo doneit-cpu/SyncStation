@@ -14,7 +14,6 @@ const Foote = () => {
       <span>App Mode: {appMode}</span>
     </div>
 
-
   )
 }
 

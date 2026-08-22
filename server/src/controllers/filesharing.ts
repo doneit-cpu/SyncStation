@@ -3,11 +3,12 @@ import path from "path";
 import multer from "multer";
 import { io } from "../socket.ts";
 import type { Fileinfo } from "../../../shared/types";
-
+import { Socket } from "socket.io";
 
 const filesrecords: Fileinfo[] = [];
 const __dirname = path.resolve();
-const uploadpath = path.join(__dirname, "..", "..", "..", "uploads");
+console.log(__dirname);
+const uploadpath = path.join(__dirname, "..", "uploads");
 
 console.log(uploadpath);
 
@@ -20,12 +21,13 @@ const storage = multer.diskStorage({
 
 export function downloadFile(req: any, res: any) {
   const filename = req.params.filename; // Get filename from the URL
+  console.log('we are asking server to for file dinload',filename)
   const filePath = path.join(uploadpath, filename); // path to your uploads folder
 
   if (!fs.existsSync(filePath)) {
-    return res.stats(404).json({ error: "file not found or has been deleted" });
+    return res.status(404).json({ error: "file not found or has been deleted" });
   }
-
+  
   res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
   res.sendFile(filePath);
 }
@@ -39,25 +41,25 @@ export const upload = multer({
 });
 
 export function fileshare(req: any, res: any) {
-
+  
   if (!req.file) {
     return res.status(400).json({ error: "No file uploaded" });
   }
 
   console.log("file name", req.file.filename);
   console.log(req.file);
-
+  
   const fileDetails: Fileinfo = {
     id: req.file.filename,
-    sender: req.body.Username,
+    sender: req.body.name,
     name: req.file.originalname,
     size: req.file.size,
     type: req.file.mimetype,
   };
-
+  
   filesrecords.push(fileDetails);
-
-  io.emit("filesharing-ev", fileDetails); // send it to everyone 
+  
+  io.to(req.body.Roomcode).emit("filesharing-ev", fileDetails); // send it to everyone 
   console.log("we need it ")
   res.status(200).json({ msg: "everything went well" });
 }

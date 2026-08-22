@@ -36,7 +36,8 @@ const uploadpath=path.join(__dirname,"..","uploads")  // storage for file sharin
 app.use("/uploads", express.static(uploadpath))  
 console.log(uploadpath ,"uploadpath");
 
-const clientDistPath = path.join(__dirname, "..", "client", "dist");  // Frontend
+const clientDistPath = path.join(__dirname,"..","client", "dist");  // Frontend
+
 app.use(express.static(clientDistPath));
 
 app.get("api/status", (req, res) => {
@@ -50,8 +51,8 @@ if (fs.existsSync(clientDistPath)) {
   console.log("Current directory is:", __dirname);
 }
 
-app.get((req: any, res: any) => {
-  res.sendFile(path.join(__dirname, "client", "dist", "index.html"));
+app.get("/{*all}",(req: any, res: any) => {
+  res.sendFile(path.join(__dirname,"..", "client", "dist", "index.html"));
 });
 
 server.listen(3000, '0.0.0.0', async () => {
