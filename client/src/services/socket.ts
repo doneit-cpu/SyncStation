@@ -41,3 +41,6 @@ export function Send(data: string, room: string) {
 export function audiosend(data: audiocontrol, room: string) {
   socket.emit('Syc-audio', data, room);
 }
+
+
+  //. git 
