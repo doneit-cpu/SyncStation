@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { joining, socket, reqjoing } from '../services/socket.ts';
+import { joining, socket, reqjoing, syncclock } from '../services/socket.ts';
 import { getPlatform, isSamelan, genRoomcode } from '../services/utlis.ts';
 import type { Fileinfo } from '../services/utlis.ts';
 
@@ -45,6 +45,7 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
       })
       socket.emit("sendip", true);
       setplatfrom(getPlatform());
+      syncclock();
       console.log("Connected to server!");
     });
 
@@ -87,6 +88,8 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
       });
     })
 
+   
+
     socket.on("connect_error", (err) => {
       console.error("Connection Error:", err.message);
       setalert({
@@ -116,7 +119,7 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
       socket.off("reciveip");
       socket.off('connect_error');
       socket.off('disconnect');
-      socket.off('filesharing-ev')
+      socket.off('filesharing-ev');
     };
 
   }, [])

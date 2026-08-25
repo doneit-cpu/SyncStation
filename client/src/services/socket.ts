@@ -42,5 +42,14 @@ export function audiosend(data: audiocontrol, room: string) {
   socket.emit('Syc-audio', data, room);
 }
 
+export function syncclock(){
+  socket.emit("center-clock-s", Date.now());
+}
 
-  //. git 
+export function syncontinous(){
+  setInterval(() => {
+    socket.emit("center-clock-S", Date.now());
+  }, 5*60*1000)
+}
+
+//. git 

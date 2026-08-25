@@ -2,11 +2,13 @@ import { Server } from "socket.io";
 import { s_content } from "./controllers/clipboard.ts"
 import type { Clientinfo, audiocontrol } from "../../shared/types.ts"
 import { getLocalIp } from "./utlis.ts";
+import { getClintoffset, setClientoffset } from "./controllers/audiocast.ts";
 
 
 export let io: Server;
 
 const clients = new Map<string, Clientinfo>; // the string here for socketid
+
 
 export function setupSocket(server: any) {
 
@@ -18,7 +20,7 @@ export function setupSocket(server: any) {
 
         socket.on("join-room", (data: Clientinfo) => {
             console.log("7", "last one");
-            console.log("person has joied", socket.id)
+            console.log("person has joied", socket.id);
             clients.set(socket.id, data); // map are diff here
             socket.join(data.room);  //  main thing 
 
@@ -32,13 +34,12 @@ export function setupSocket(server: any) {
         socket.on("Syc-msgC", (data: string) => {    // here we made overwrite into clipboard 
             // if(only if device is not android or mac)?? how do i handle it ?  // used electron fast 
             // used this as diff rought or send diff data accorinding to platfrom  
-            // socket.io-client does can recive the the info so y don't we made diff event for lp,pwa , browser 
-
+            // socket.io-client does c an recive the the info so y don't we made diff event for lp,pwa , browser 
         })
 
-        socket.on("Syc-audio", (data: audiocontrol, rooms:string) => {
+        socket.on("Syc-audio", (data: audiocontrol, rooms: string) => {
             console.log("readed server from audiocast")
-            socket.to(rooms).emit("done-audio", data);
+            io.to(clients.get(socket.id)!.room).emit("done-audio", data);
         })
 
         socket.on("pre-joinreq", (data: string, username: string) => {
@@ -51,6 +52,12 @@ export function setupSocket(server: any) {
             console.error("Socket Error:", err);
         });
 
+     
+        socket.on("center-clock-S", (clinetclock: number) => {
+            const serverclock = Date.now();
+            socket.emit("center-clock-R", clinetclock, serverclock);
+        })
+
         socket.on("sendip", (data) => {
             if (data) {
                 const ip = getLocalIp();
@@ -61,10 +68,15 @@ export function setupSocket(server: any) {
 
         socket.on("disconnect", (reason) => {
             clients.delete(socket.id);
-            console.log("goodbye frd:", reason);
+            console.log("goodbye frd:", reason, "--", socket.id);
         });
     });
+
+
 }
+
+
+
 
 
 {

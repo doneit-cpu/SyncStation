@@ -51,7 +51,7 @@ export function fileshare(req: any, res: any) {
   
   const fileDetails: Fileinfo = {
     id: req.file.filename,
-    sender: req.body.name,
+    sender: req.body.Username,
     name: req.file.originalname,
     size: req.file.size,
     type: req.file.mimetype,
