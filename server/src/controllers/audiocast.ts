@@ -1,8 +1,6 @@
-import { io } from "../socket";
+import { io } from "../socket.ts";
 
 const clockoffshets=new Map<string,number>()
-
-let timer:number;
 
 export function setClientoffset(socketid:string,offset:number){
   clockoffshets.set(socketid,offset);

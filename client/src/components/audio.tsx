@@ -4,7 +4,7 @@
 import { useEffect, useRef } from 'react'
 import { useSync } from '../context/syncontext'
 import type { Fileinfo, audiocontrol } from "../services/utlis"
-import { audiosend, syncontinous } from "../services/socket"
+import { audiosend, syncontinous } from "../services/socket.ts"
 
 interface playlist {
   id: string;
@@ -14,14 +14,14 @@ interface playlist {
 
 const Audio = () => {
 
-  const { fileshareMap, username, room, selectitem, setselecteitem, socket, isplay, setisplay, song, setsong, setalert, filename, setfilename } = useSync();
+  const { fileshareMap, username, room, socket, isplay, setisplay, song, setsong, setalert, } = useSync();
 
   const arraylist = Array.from<Fileinfo>(fileshareMap.values());
 
   const audioRef = useRef<HTMLAudioElement>(null);
-  const selecitemRef = useRef(selectitem);
+  const selectemRef = useRef("");
+  const filename = useRef("");
   const clockdrift = useRef(0);   // what i put here ? 
-  const fname = useRef(filename);
   const driftIntervalRef = useRef<number | null>(null);
 
   const audiofilelist: playlist[] = arraylist
@@ -38,9 +38,9 @@ const Audio = () => {
       }
     })
 
-  useEffect(() => {
-    selecitemRef.current = selectitem;
-  }, [selectitem])
+  // useEffect(() => {
+  //   selecitemRef.current = selectitem;
+  // }, [selectitem])
 
   useEffect(() => {
     if (!socket) return;
@@ -58,15 +58,16 @@ const Audio = () => {
     let loaded: number = 0;
     socket.on("done-audio", (data: audiocontrol) => {
 
+      console.log("godgod-zap-songdetailsend by other", data);
       console.log("end of the audio syc");
 
       if (data.sender == username) return;
-
-      setsong(true);
-
-      if (selecitemRef.current != data.id) {
-        selecitemRef.current = data.id;
-        fname.current = data.name;
+          setsong(true);
+      
+      if (selectemRef.current != data.id) {
+        selectemRef.current = data.id;
+        console.log(selectemRef.current);
+        filename.current = data.name;
       }
 
       const waitMs = Math.max(0, data.synctime - clockdrift.current - Date.now());
@@ -79,41 +80,43 @@ const Audio = () => {
         clearInterval(driftIntervalRef.current);
       }
 
-
       setTimeout(() => {
         audioRef.current!.currentTime = data.timestamp;
         setisplay(data.play);
         if (data.play) {
           audioRef.current!.play();
           loaded = Date.now() - (data.timestamp * 1000);
+          if (audioRef.current?.error) {
+            console.log("no non no", audioRef.current.error)
+          }
         } else {
           audioRef.current!.pause();
         }
       }, waitMs);
 
+
+      driftIntervalRef.current = setInterval(() => {
+        console.log(audioRef.current);
+        const playedpart = (Date.now() - loaded) / 1000;
+        const diff = audioRef.current?.currentTime! - playedpart;
+
+        if (diff < -0.04) {
+          // Behind by more than 40ms -> speed up slightly
+          audioRef.current!.playbackRate = 1.04;
+        } else if (diff > 0.04) {
+          // Ahead by more than 40ms -> slow down slightly
+          audioRef.current!.playbackRate = 0.96;
+        } else {
+          // In diff!
+          audioRef.current!.playbackRate = 1.0;
+        }
+      }, 10000);
     })
-
-    driftIntervalRef.current = setInterval(() => {
-      const playedpart = (Date.now() - loaded) / 1000;
-      const diff = audioRef.current?.currentTime! - playedpart;
-
-      if (diff < -0.04) {
-        // Behind by more than 40ms -> speed up slightly
-        audioRef.current!.playbackRate = 1.04;
-      } else if (diff > 0.04) {
-        // Ahead by more than 40ms -> slow down slightly
-        audioRef.current!.playbackRate = 0.96;
-      } else {
-        // In diff!
-        audioRef.current!.playbackRate = 1.0;
-      }
-    }, 10000);
-
 
     return () => {
       socket.off("done-audio");
     }
-  }, [username, selectitem, song]
+  }, [username, song]
   )
 
   const playatTime = (seconds: number, pause: boolean, delay: number) => {
@@ -125,14 +128,14 @@ const Audio = () => {
     audioRef.current.currentTime = newTime;
 
     const data: audiocontrol = {    //i had collected data to data
-      id: selectitem,
-      name: filename,
+      id: selectemRef.current,
+      name: filename.current,
       play: pause,
       timestamp: newTime,
       synctime: Date.now() + delay + clockdrift.current,
       sender: username,
     }
-
+    console.log("package send by me  ---- ", data);
     audiosend(data, room);
 
   }
@@ -147,8 +150,8 @@ const Audio = () => {
       {song &&
         <div className='songlist'>
           <div className='rightplaycontrol'>
-            <h2>{`Song playing is :${filename}`}</h2>
-            <audio hidden ref={audioRef} src={`uploads/${selectitem}`}></audio>
+            <h2>{`Song playing is :${filename.current}`}</h2>
+            <audio hidden ref={audioRef} src={`uploads/${selectemRef.current}`}></audio>
             <button className='controlbtn' onClick={() => {
               const see = !isplay;
               setisplay(see);
@@ -161,8 +164,8 @@ const Audio = () => {
           <div className='leftitemlist' >
             {audiofilelist.map((f) => (
               <div key={f.id} onClick={() => {
-                setselecteitem(f.id);
-                setfilename(f.filename);
+                selectemRef.current = f.id;
+                filename.current = f.filename;
                 playatTime(0, true, 500)
               }}
               >{`${f.filename} ${f.displayname}`}
