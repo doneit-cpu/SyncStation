@@ -44,43 +44,52 @@ const Audio = () => {
 
   useEffect(() => {
     if (!socket) return;
-
+    console.log("-1-a")
     if (song) { syncontinous() };
+    console.log("-2-a")
 
     socket.on("center-clock-R", (clinetclock: number, serverclock: number) => {
+      console.log("start-clock-3", clinetclock, serverclock);
       const clientnow = Date.now();
       const latency = (clientnow - clinetclock) / 2; // latency // time taken between server and client
       const estimatedserverclock = serverclock + latency;
       const clockoffset = estimatedserverclock - clinetclock;
       clockdrift.current = clockoffset;
     })
+    console.log("-3-a")
 
     let loaded: number = 0;
     socket.on("done-audio", (data: audiocontrol) => {
+      console.log("-4-a")
 
       console.log("godgod-zap-songdetailsend by other", data);
       console.log("end of the audio syc");
 
-      if (data.sender == username) return;
-          setsong(true);
+      setsong(true);
       
       if (selectemRef.current != data.id) {
-        selectemRef.current = data.id;
-        console.log(selectemRef.current);
+          selectemRef.current = data.id;
         filename.current = data.name;
-      }
 
+        if (audioRef.current && data.id) {
+          audioRef.current.src = `/uploads/${data.id}`;
+          audioRef.current.load();
+        }
+      }
+      
       const waitMs = Math.max(0, data.synctime - clockdrift.current - Date.now());
 
       if (!audioRef.current) {
+        console.log("-5-a")
         setalert({ message: "Something went wrong with audio cast", type: "error" })
       }
-
+      
       if (driftIntervalRef.current) {
         clearInterval(driftIntervalRef.current);
       }
 
       setTimeout(() => {
+        console.log("we are in the waiting time of playing song",selectemRef.current,waitMs);
         audioRef.current!.currentTime = data.timestamp;
         setisplay(data.play);
         if (data.play) {
@@ -116,7 +125,7 @@ const Audio = () => {
     return () => {
       socket.off("done-audio");
     }
-  }, [username, song]
+  }, [username, song,selectemRef.current]
   )
 
   const playatTime = (seconds: number, pause: boolean, delay: number) => {
@@ -151,7 +160,7 @@ const Audio = () => {
         <div className='songlist'>
           <div className='rightplaycontrol'>
             <h2>{`Song playing is :${filename.current}`}</h2>
-            <audio hidden ref={audioRef} src={`uploads/${selectemRef.current}`}></audio>
+            <audio hidden  ref={audioRef} ></audio>
             <button className='controlbtn' onClick={() => {
               const see = !isplay;
               setisplay(see);
@@ -180,4 +189,4 @@ const Audio = () => {
 
 export default Audio
 
-
+// git 

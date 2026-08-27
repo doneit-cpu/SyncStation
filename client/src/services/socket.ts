@@ -43,7 +43,8 @@ export function audiosend(data: audiocontrol, room: string) {
 }
 
 export function syncclock(){
-  socket.emit("center-clock-s", Date.now());
+  console.log('start clock',Date.now());
+  socket.emit("center-clock-S", Date.now());
 }
 
 export function syncontinous(){

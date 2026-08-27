@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {"dev": "concurrently --kill-others-on-fail \"npm run dev --prefix client\" \"npm run test --prefix server\""
+  "scripts": {
+    "build": "npm run build --prefix client",
+    "dev": "concurrently \"npm run dev --prefix client\" \"npm run test --prefix server\"",
+    "build-and-run": "npm run build && npm run test --prefix server"
   },
   "repository": {
     "type": "git",

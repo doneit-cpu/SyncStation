@@ -55,6 +55,7 @@ export function setupSocket(server: any) {
      
         socket.on("center-clock-S", (clinetclock: number) => {
             const serverclock = Date.now();
+            console.log('start clock-2',clinetclock,serverclock);
             socket.emit("center-clock-R", clinetclock, serverclock);
         })
 
