@@ -1,7 +1,7 @@
 /// first send the user all song file if they want to play like list ? okay , now two things if want hear do alone if not do it broadcast it 
 // other cool thing getDisplayMedia() can give u whole ? audio from all pc like chrome tab to vlc or any other video (decoder) player 
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useSync } from '../context/syncontext'
 import type { Fileinfo, audiocontrol } from "../services/utlis"
 import { audiosend, syncontinous } from "../services/socket.ts"
@@ -14,15 +14,18 @@ interface playlist {
 
 const Audio = () => {
 
-  const { fileshareMap, username, room, socket, isplay, setisplay, song, setsong, setalert, } = useSync();
+  const { fileshareMap, username, room, socket, isplay, setisplay, song, setsong, setalert } = useSync();
 
   const arraylist = Array.from<Fileinfo>(fileshareMap.values());
 
   const audioRef = useRef<HTMLAudioElement>(null);
+  const [progress, setProgress] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [lastid, setlastid] = useState("");
   const selectemRef = useRef("");
   const filename = useRef("");
   const clockdrift = useRef(0);   // what i put here ? 
-  const driftIntervalRef = useRef<number | null>(null);
+  const driftIntervalRef = useRef<NodeJS.Timeout>(null);
 
   const audiofilelist: playlist[] = arraylist
     .filter((file) => {
@@ -63,33 +66,29 @@ const Audio = () => {
       console.log("-4-a")
 
       console.log("godgod-zap-songdetailsend by other", data);
-      console.log("end of the audio syc");
 
       setsong(true);
-      
-      if (selectemRef.current != data.id) {
-          selectemRef.current = data.id;
-        filename.current = data.name;
 
-        if (audioRef.current && data.id) {
-          audioRef.current.src = `/uploads/${data.id}`;
-          audioRef.current.load();
-        }
+      audioRef.current!.src = `/uploads/${data.id}`;
+
+      if (audioRef.current && data.id != lastid) {
+        audioRef.current.load();
+        setlastid(data.id);
       }
-      
+
       const waitMs = Math.max(0, data.synctime - clockdrift.current - Date.now());
 
       if (!audioRef.current) {
         console.log("-5-a")
         setalert({ message: "Something went wrong with audio cast", type: "error" })
       }
-      
+
       if (driftIntervalRef.current) {
         clearInterval(driftIntervalRef.current);
       }
 
       setTimeout(() => {
-        console.log("we are in the waiting time of playing song",selectemRef.current,waitMs);
+        console.log("we are in the waiting time of playing song", selectemRef.current, waitMs);
         audioRef.current!.currentTime = data.timestamp;
         setisplay(data.play);
         if (data.play) {
@@ -125,7 +124,7 @@ const Audio = () => {
     return () => {
       socket.off("done-audio");
     }
-  }, [username, song,selectemRef.current]
+  }, [username, song, lastid]
   )
 
   const playatTime = (seconds: number, pause: boolean, delay: number) => {
@@ -160,7 +159,21 @@ const Audio = () => {
         <div className='songlist'>
           <div className='rightplaycontrol'>
             <h2>{`Song playing is :${filename.current}`}</h2>
-            <audio hidden  ref={audioRef} ></audio>
+            <audio hidden ref={audioRef}
+              onTimeUpdate={(e) => setProgress(e.currentTarget.currentTime)}
+              onLoadedMetadata={(e) => setDuration(e.currentTarget.duration)} ></audio>
+            <input
+              type="range"
+              min="0"
+              max={duration}
+              value={progress}
+              onChange={(e) => {
+                const newTime = parseFloat(e.target.value);
+                audioRef.current!.currentTime = newTime; // Seek                                                                                                
+                setProgress(newTime); // Update UI immediately                                                                                                  
+              }}
+            />
+            <span>{(progress*1000).toFixed(0)}</span>
             <button className='controlbtn' onClick={() => {
               const see = !isplay;
               setisplay(see);

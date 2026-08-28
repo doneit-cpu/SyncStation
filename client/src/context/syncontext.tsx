@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { joining, socket, reqjoing, syncclock } from '../services/socket.ts';
 import { getPlatform, isSamelan, genRoomcode } from '../services/utlis.ts';
 import type { Fileinfo } from '../services/utlis.ts';
@@ -30,6 +30,7 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
   const [alertdata, setalert] = useState<AlertType | null>(null); // custom alet object for custom alet on site
   // const [problem, setproblem] = useState("");
 
+  const broadcasterid=useRef("");
   // Functions to manipulate state
   const addToHistory = (newContent: string) => {
     setHistory((prev) => [...prev, newContent]);
@@ -178,7 +179,7 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   return (
-    <SyncContext.Provider value={{ username, setUsername, history, addToHistory, createroom, joingreq, shared, setshared, room, setroom, socket, linkjoinreq, alertdata, setalert, Lanip, platfrom, lannet, checklan, fileshareMap, isconnected, setisconnected, isplay, setisplay, song, setsong, selectitem, setselecteitem,filename,setfilename }}>
+    <SyncContext.Provider value={{ username, setUsername, history, addToHistory, createroom, joingreq, shared, setshared, room, setroom, socket, linkjoinreq, alertdata, setalert, Lanip, platfrom, lannet, checklan, fileshareMap, isconnected, setisconnected, isplay, setisplay, song, setsong, selectitem, setselecteitem,filename,setfilename ,broadcasterid}}>
       {children}
     </SyncContext.Provider>
   );

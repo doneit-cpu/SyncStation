@@ -52,11 +52,20 @@ export function setupSocket(server: any) {
             console.error("Socket Error:", err);
         });
 
-     
+
         socket.on("center-clock-S", (clinetclock: number) => {
             const serverclock = Date.now();
-            console.log('start clock-2',clinetclock,serverclock);
+            console.log('start clock-2', clinetclock, serverclock);
             socket.emit("center-clock-R", clinetclock, serverclock);
+        })
+
+        socket.on("broadcaster-L", () => {
+            console.log("liveaudio cast is enable");
+            io.to(socket.id).emit("reciver-live", socket.id);
+        })
+        
+        socket.on("reciver-L", (data) => {
+            socket.emit("sender-live", socket.id);
         })
 
         socket.on("sendip", (data) => {
