@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useSync } from '../context/syncontext'
 import type { Fileinfo, audiocontrol } from "../services/utlis"
 import { audiosend, syncontinous } from "../services/socket.ts"
+import Liveaduio from './liveaudio.tsx'
 
 interface playlist {
   id: string;
@@ -14,7 +15,7 @@ interface playlist {
 
 const Audio = () => {
 
-  const { fileshareMap, username, room, socket, isplay, setisplay, song, setsong, setalert } = useSync();
+  const { fileshareMap, username, room, socket, isplay, setisplay, song, setsong, setalert} = useSync();
 
   const arraylist = Array.from<Fileinfo>(fileshareMap.values());
 
@@ -153,7 +154,7 @@ const Audio = () => {
     <div className="mainaudio">
       <div className='secondlayer'><h1>Audio Bridge</h1>
         <button onClick={() => { setsong(true) }} >AUDIO CAST</button>
-        <button onClick={() => { }}>push to talk</button>
+        <button onClick={() => { }}>live audio</button>
       </div>
       {song &&
         <div className='songlist'>
@@ -195,6 +196,9 @@ const Audio = () => {
             ))}
           </div>
         </div>
+      }
+      {(!song) &&
+        <Liveaduio></Liveaduio>  
       }
     </div>
   )

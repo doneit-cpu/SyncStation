@@ -59,13 +59,21 @@ export function setupSocket(server: any) {
             socket.emit("center-clock-R", clinetclock, serverclock);
         })
 
-        socket.on("broadcaster-L", () => {
+        // broadcaster of liveaudio
+        socket.on("live-start", () => {
             console.log("liveaudio cast is enable");
-            io.to(socket.id).emit("reciver-live", socket.id);
+            console.log("ls1",socket.id);
+            io.to(clients.get(socket.id)!.room).emit("live-started", socket.id);
         })
-        
-        socket.on("reciver-L", (data) => {
-            socket.emit("sender-live", socket.id);
+
+        socket.on("live-signal", (id: string, signal: any) => {
+            console.log("ls2");
+            io.to(id).emit("live-signal", socket.id, signal);  // broadcaster recive this and send his signal to lister by socket.id, 
+        })
+
+        socket.on("live-answer-signal", (id: string, signal: any) => {
+            console.log("ls3");
+            io.to(id).emit("live-answer-signal", signal);
         })
 
         socket.on("sendip", (data) => {

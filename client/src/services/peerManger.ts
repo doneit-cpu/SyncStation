@@ -4,23 +4,35 @@ export class PeerManger {
 
   peers: Map<string, Peer.Instance> = new Map();
 
-  createPeer(id: string,initiator: boolean,stream: MediaStream | null,onSignal: (signal: any) => void){
+  createPeer(id: string, initiator: boolean, stream: MediaStream | null, onSignal: (signal: any) => void) {
     const peer = new Peer({
       initiator,
       trickle: false,
       stream: stream || undefined
     })
-    
+
     peer.on('signal', (signal) => {
       onSignal(signal);
     })
 
-    peer.on('close', () => this.peers.delete(id));
+    peer.on('close', () => {
+      console.log('🟡 WEBRTC CLOSED:', id);
+      this.peers.delete(id)
+    });
+
     peer.on('error', (err) => {
-      console.error('peer errors:', err);
+      console.error('🔴 WEBRTC ERROR:', err);
       this.peers.delete(id);
     })
 
+    peer.on('connect', () => {
+      console.log('🟢 WEBRTC CONNECTED:', id);
+    });
+
+    peer.on('stream', (stream) => {
+      console.log('🟢 REMOTE STREAM RECEIVED:', stream);
+    });
+    console.log(id,peer);
     this.peers.set(id, peer);
     return peer;
   }
