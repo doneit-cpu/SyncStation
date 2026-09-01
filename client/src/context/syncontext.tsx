@@ -39,6 +39,7 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
 
     socket.on("connect", () => {
+      console.log("Socket connected! Emitting sendip...");
       setisconnected(true);
       setalert({
         message: "Connected successfully.",
@@ -186,3 +187,5 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
 };
 
 export const useSync = () => useContext(SyncContext)
+
+

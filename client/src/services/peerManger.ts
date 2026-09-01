@@ -18,7 +18,7 @@ export class PeerManger {
     peer.on('close', () => {
       console.log('🟡 WEBRTC CLOSED:', id);
       this.peers.delete(id)
-    });
+    }); 
 
     peer.on('error', (err) => {
       console.error('🔴 WEBRTC ERROR:', err);
@@ -29,9 +29,7 @@ export class PeerManger {
       console.log('🟢 WEBRTC CONNECTED:', id);
     });
 
-    peer.on('stream', (stream) => {
-      console.log('🟢 REMOTE STREAM RECEIVED:', stream);
-    });
+   
     console.log(id,peer);
     this.peers.set(id, peer);
     return peer;

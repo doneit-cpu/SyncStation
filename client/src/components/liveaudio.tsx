@@ -1,17 +1,18 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, } from 'react';
 import { useSync } from '../context/syncontext';
 import { PeerManger } from '../services/peerManger';
 
 const Liveaduio = () => {
-  const { socket } = useSync();
+  const { socket, setalert } = useSync();
   const peerManger = useRef(new PeerManger());
-  const [broadcasterid, setbroadcasterid] = useState("");
+  const broadcasterid = useRef("");
+  const [hasbroadcast, sethadbroadcast] = useState(false);
   const streamedata = useRef<MediaStream | null>(null);
 
   const liveAudioRef = useRef<HTMLAudioElement>(null);
 
   const handlesystemaudio = async () => {
-    if (!broadcasterid) {
+    if (!broadcasterid.current) {
       const stream = await navigator.mediaDevices.getDisplayMedia({
         video: true,
         audio: {
@@ -21,15 +22,13 @@ const Liveaduio = () => {
         surfaceSwitching: "include",
       } as any);
 
-      console.log("BROADCASTER DEBUG:");
-      console.log("- Stream active:", stream.active);
-      console.log("- Audio tracks:", stream.getAudioTracks().length);
-
       if (stream.getAudioTracks().length === 0) {
-        console.error("❌ NO AUDIO DATA FOUND! Did you check the 'Share Audio' box?");
+        alert("No audio found. Did you check 'Share System Audio'?");
+        return;
       }
-
-      streamedata.current = stream;
+      const audioOnlyStream = new MediaStream(stream.getAudioTracks());
+      streamedata.current = audioOnlyStream;
+      // streamedata.current = stream;
       socket.emit("live-start");
     }
   };
@@ -39,30 +38,31 @@ const Liveaduio = () => {
 
     socket.on("live-started", (data: string) => {
       if (data !== socket.id) {
-        setbroadcasterid(data);
+        broadcasterid.current = data;
+        sethadbroadcast(true);
         console.log("we send got it ", data);
       }
     })
 
     socket.on("live-signal", (id: string, signal: any) => {
-      if (peerManger.current.getPeer(id) || !streamedata.current || broadcasterid) return;
-      const peer = peerManger.current.createPeer(id, false, streamedata.current, (signal) => {  //
-        socket.emit("live-answer-signal", id, signal);
-      })
+      if (!streamedata.current) return;
+      let peer = peerManger.current.getPeer(id);
+      if (!peer) {
+        peer = peerManger.current.createPeer(id, false, streamedata.current, (signal) => {  //
+          socket.emit("live-answer-signal", id, signal);
+        })
+      }
       peer.signal(signal); // lister is connected broadcaster
       console.log("we got broadcaster connected here ");
     });
 
     socket.on("live-answer-signal", (signal: any) => {
-
-      const peer = peerManger.current.getPeer(broadcasterid);
+      const peer = peerManger.current.getPeer(broadcasterid.current);
       if (!peer) {
-        console.log("we fucked don't know y ", peer, broadcasterid);
+        setalert({ "message": "we having issue at webrtc connection", "type": "error" });
         return;
       };
-
-
-      peer.signal(signal);
+      peer!.signal(signal);
       console.log("whole thing is done");
     })
 
@@ -72,27 +72,41 @@ const Liveaduio = () => {
       socket.off("live-answer-signal");
     }
 
-  }, [broadcasterid])
+  }, [socket])
 
   const handlejoined = () => {
-    if (!socket || !broadcasterid || peerManger.current.getPeer(broadcasterid)) {
+    if (!socket || !broadcasterid.current || peerManger.current.getPeer(broadcasterid.current)) {
       console.log('we got problem somehow?')
       return;
     }
 
     console.log("we send every request to join");
-    const peer = peerManger.current.createPeer(broadcasterid, true, null, (signal) => {
-      socket.emit("live-signal", broadcasterid, signal)
+    const peer = peerManger.current.createPeer(broadcasterid.current, true, null, (signal) => {
+      socket.emit("live-signal", broadcasterid.current, signal)
     })
-    peer!.on("stream", (remotestreamaudio) => {
+    peer.on("stream", (remotestreamaudio) => {
       if (liveAudioRef.current) {
         liveAudioRef.current.srcObject = remotestreamaudio;
-        liveAudioRef.current.play().then(() => {
-          console.log("Audio playback started successfully!");
-        });
+        liveAudioRef.current.play().catch(e => console.error("Play failed:", e));
       }
     })
 
+  }
+
+  const closebroadcaster = () => {
+   
+    if (streamedata.current) {
+      streamedata.current.getTracks().forEach(track => track.stop());
+      streamedata.current = null;
+    }
+  
+    peerManger.current.destroyAll();
+
+    broadcasterid.current = "";
+    sethadbroadcast(false);
+
+    socket.emit("live-close");
+    console.log("Broadcast closed");
   }
 
   return (
@@ -100,7 +114,13 @@ const Liveaduio = () => {
 
       <div>
         <button onClick={() => handlesystemaudio()}>Host-node</button>
-        <button onClick={() => handlejoined()}>Reciver-node</button>
+        {hasbroadcast &&
+          <button onClick={() => handlejoined()}>Reciver-node</button>
+        }
+        {
+          hasbroadcast && 
+        <button onClick={() => closebroadcaster()}>Close-Broadcast</button>
+        }
         <audio ref={liveAudioRef} autoPlay playsInline controls style={{ display: 'block' }}></audio>
       </div>
 
@@ -110,4 +130,3 @@ const Liveaduio = () => {
 }
 
 export default Liveaduio;
-
