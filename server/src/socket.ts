@@ -76,6 +76,10 @@ export function setupSocket(server: any) {
             io.to(id).emit("live-answer-signal", signal);
         })
 
+        socket.on("live-close",()=>{
+            io.to(clients.get(socket.id)!.room).emit("live-closed");
+        })
+
         socket.on("sendip", (data) => {
             if (data) {
                 const ip = getLocalIp();

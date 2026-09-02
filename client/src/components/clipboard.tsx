@@ -3,9 +3,10 @@ import { useSync } from "../context/syncontext.tsx"
 
 const Clipboardy = () => {
 
-  const { history, room , setalert ,checklan} = useSync();
+  const { history, room , setalert ,checklan ,readClipboard } = useSync();
 
-  const readClipboard = async () => {   // does asyc function would work prefectly 
+  // need to see for other os linux(ubuntu) , windows for auto read 
+   readClipboard.current = async () => {   // does asyc function would work prefectly 
     try {
       // Attempt to read from clipboard
       const value = await navigator.clipboard.readText();
@@ -48,7 +49,7 @@ const Clipboardy = () => {
 
   return (
     <div>
-      <button onClick={()=>{readClipboard(),checklan()}}>Read Clipboard</button>
+      <button onClick={()=>{readClipboard.current(),checklan()}}>Read Clipboard</button>
       <button onClick={writeClipboard}>Write Clipboard</button>
     </div>
   );

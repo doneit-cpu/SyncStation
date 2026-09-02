@@ -15,11 +15,11 @@ interface playlist {
 
 const Audio = () => {
 
-  const { fileshareMap, username, room, socket, isplay, setisplay, song, setsong, setalert} = useSync();
+  const { fileshareMap, username, room, socket, isplay, setisplay, song, setsong, setalert ,audioRef , loaded} = useSync();
 
   const arraylist = Array.from<Fileinfo>(fileshareMap.values());
 
-  const audioRef = useRef<HTMLAudioElement>(null);
+  
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
   const [lastid, setlastid] = useState("");
@@ -62,7 +62,7 @@ const Audio = () => {
     })
     console.log("-3-a")
 
-    let loaded: number = 0;
+    
     socket.on("done-audio", (data: audiocontrol) => {
       console.log("-4-a")
 
@@ -88,13 +88,13 @@ const Audio = () => {
         clearInterval(driftIntervalRef.current);
       }
 
-      setTimeout(() => {
+      driftIntervalRef.current=setTimeout(() => {
         console.log("we are in the waiting time of playing song", selectemRef.current, waitMs);
         audioRef.current!.currentTime = data.timestamp;
         setisplay(data.play);
         if (data.play) {
           audioRef.current!.play();
-          loaded = Date.now() - (data.timestamp * 1000);
+          loaded.current = Date.now() - (data.timestamp * 1000);
           if (audioRef.current?.error) {
             console.log("no non no", audioRef.current.error)
           }
@@ -102,24 +102,7 @@ const Audio = () => {
           audioRef.current!.pause();
         }
       }, waitMs);
-
-
-      driftIntervalRef.current = setInterval(() => {
-        console.log(audioRef.current);
-        const playedpart = (Date.now() - loaded) / 1000;
-        const diff = audioRef.current?.currentTime! - playedpart;
-
-        if (diff < -0.04) {
-          // Behind by more than 40ms -> speed up slightly
-          audioRef.current!.playbackRate = 1.04;
-        } else if (diff > 0.04) {
-          // Ahead by more than 40ms -> slow down slightly
-          audioRef.current!.playbackRate = 0.96;
-        } else {
-          // In diff!
-          audioRef.current!.playbackRate = 1.0;
-        }
-      }, 10000);
+      
     })
 
     return () => {

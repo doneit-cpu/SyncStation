@@ -55,7 +55,7 @@ const Liveaduio = () => {
       peer.signal(signal); // lister is connected broadcaster
       console.log("we got broadcaster connected here ");
     });
-
+    
     socket.on("live-answer-signal", (signal: any) => {
       const peer = peerManger.current.getPeer(broadcasterid.current);
       if (!peer) {
@@ -65,11 +65,18 @@ const Liveaduio = () => {
       peer!.signal(signal);
       console.log("whole thing is done");
     })
+    
+    socket.on("live-closed",()=>{
+      setalert({"message":"broadcaster has closed the live audio streaming","type":"warning"})
+      peerManger.current.destroyAll()
+      broadcasterid.current="";
+    })
 
     return () => {
       socket.off("live-started");
       socket.off("live-signal");
       socket.off("live-answer-signal");
+      socket.off("live-closed");
     }
 
   }, [socket])
@@ -85,7 +92,7 @@ const Liveaduio = () => {
       socket.emit("live-signal", broadcasterid.current, signal)
     })
     peer.on("stream", (remotestreamaudio) => {
-      if (liveAudioRef.current) {
+       if (liveAudioRef.current) {
         liveAudioRef.current.srcObject = remotestreamaudio;
         liveAudioRef.current.play().catch(e => console.error("Play failed:", e));
       }
@@ -95,6 +102,10 @@ const Liveaduio = () => {
 
   const closebroadcaster = () => {
    
+    if(!broadcasterid){
+      socket.emit("live-close");
+    }
+
     if (streamedata.current) {
       streamedata.current.getTracks().forEach(track => track.stop());
       streamedata.current = null;
@@ -105,7 +116,6 @@ const Liveaduio = () => {
     broadcasterid.current = "";
     sethadbroadcast(false);
 
-    socket.emit("live-close");
     console.log("Broadcast closed");
   }
 
@@ -126,7 +136,6 @@ const Liveaduio = () => {
 
     </>
   )
-
 }
 
 export default Liveaduio;
