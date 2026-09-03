@@ -123,9 +123,8 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
       const date = Date.now()
 
       if (date % (1000 * 60 * 5)) {
-        syncclock()    // sync device clock with server 
-      } else if (date % (1000 * 10)) {
-        setInterval(() => {
+        // syncclock()    // sync device clock with server 
+      } else if (date % (1000 * 10)) {        
           console.log(audioRef.current);
           const playedpart = (Date.now() - loaded.current) / 1000;
           const diff = audioRef.current?.currentTime! - playedpart;
@@ -140,7 +139,6 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
             // In diff!
             audioRef.current!.playbackRate = 1.0;
           }
-        }, 10000);
       } else if (date % 500) {
 
       }

@@ -15,18 +15,21 @@ interface playlist {
 
 const Audio = () => {
 
-  const { fileshareMap, username, room, socket, isplay, setisplay, song, setsong, setalert ,audioRef , loaded} = useSync();
+  const { fileshareMap, username, room, socket, isplay, setisplay, song, setsong, setalert, audioRef, loaded } = useSync();
 
   const arraylist = Array.from<Fileinfo>(fileshareMap.values());
 
-  
+
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
   const [lastid, setlastid] = useState("");
+  const [volume, setvolume] = useState(0);
+
   const selectemRef = useRef("");
   const filename = useRef("");
   const clockdrift = useRef(0);   // what i put here ? 
   const driftIntervalRef = useRef<NodeJS.Timeout>(null);
+
 
   const audiofilelist: playlist[] = arraylist
     .filter((file) => {
@@ -62,7 +65,7 @@ const Audio = () => {
     })
     console.log("-3-a")
 
-    
+
     socket.on("done-audio", (data: audiocontrol) => {
       console.log("-4-a")
 
@@ -88,7 +91,7 @@ const Audio = () => {
         clearInterval(driftIntervalRef.current);
       }
 
-      driftIntervalRef.current=setTimeout(() => {
+      driftIntervalRef.current = setTimeout(() => {
         console.log("we are in the waiting time of playing song", selectemRef.current, waitMs);
         audioRef.current!.currentTime = data.timestamp;
         setisplay(data.play);
@@ -102,7 +105,7 @@ const Audio = () => {
           audioRef.current!.pause();
         }
       }, waitMs);
-      
+
     })
 
     return () => {
@@ -157,7 +160,7 @@ const Audio = () => {
                 setProgress(newTime); // Update UI immediately                                                                                                  
               }}
             />
-            <span>{(progress*1000).toFixed(0)}</span>
+            <span>{(progress * 1000).toFixed(0)}</span>
             <button className='controlbtn' onClick={() => {
               const see = !isplay;
               setisplay(see);
@@ -165,6 +168,14 @@ const Audio = () => {
               else { playatTime(0, see, 100) }
             }}>{isplay ? "PAUSE" : "PLAY"}</button>
             <button className='controlbtn' onClick={() => { playatTime(+5, isplay, 150) }}>+5</button>
+            <input type='range' min={0} max={100} value={volume}
+              onChange={(e) => {
+                if (audioRef.current) {
+                  const newdata = parseFloat(e.target.value);
+                  audioRef.current.volume = newdata/100;
+                  setvolume(newdata);
+                }
+              }}></input>
             <button className='controlbtn' onClick={() => { playatTime(-5, isplay, 150) }}>-5</button>
           </div>
           <div className='leftitemlist' >
@@ -181,7 +192,7 @@ const Audio = () => {
         </div>
       }
       {(!song) &&
-        <Liveaduio></Liveaduio>  
+        <Liveaduio></Liveaduio>
       }
     </div>
   )

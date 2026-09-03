@@ -12,7 +12,7 @@ const Clipboardy = () => {
       const value = await navigator.clipboard.readText();
       console.log("readed",value);
       if(value){   // i think this was problem right ?? 
-        if((!history.length) && (history[history.length - 1]===value)){  // preventing from send uselsee duplicate 
+        if(history.length && history[history.length - 1]===value){  // preventing from send uselsee duplicate 
           console.log("it's already copied "); // what i do 
           return;
         }else{
