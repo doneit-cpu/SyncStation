@@ -32,6 +32,7 @@ const Filesharing = () => {
 
     const validFiles = files.filter(file => {
       if (file.size > MAX_CLIENT_SIZE) {
+        
         setalert({ message: `File ${file.name} is too large (max 1GB)`, type: "error" });
         return false;
       }
@@ -140,13 +141,13 @@ const Filesharing = () => {
         onClick={() => fileinputRef.current?.click()}
         onDragOver={(e) => { e.preventDefault(); setIsDragActive(true); }}
         onDragLeave={() => setIsDragActive(false)}
-        onDrop={(e) => { e.preventDefault(); setIsDragActive(false); handleUpload(Array.from(e.dataTransfer.files)); }}
+        onDrop={(e) => { e.preventDefault(); setIsDragActive(false); console.log(e.dataTransfer.files,"-->e.datafiles" ,e ,"-->whole");handleUpload(Array.from(e.dataTransfer.files)); }}
         className={`cursor-pointer rounded-xl border-2 border-dashed p-8 text-center transition ${isDragActive ? 'border-blue-600 bg-blue-50' :
           'border-slate-700 bg-[#080b11]'}`}
       >
         <p className="font-mono text-xs text-slate-400">Drag & drop or click to upload</p>
       </div>
-      <input ref={fileinputRef} type="file" multiple hidden onChange={(e) => e.target.files && handleUpload(Array.from(e.target.files))} />
+      <input ref={fileinputRef} type="file" multiple hidden onChange={(e) =>{ e.target.files && handleUpload(Array.from(e.target.files));console.log(e.target.files,"-->e.datafiles" ,e ,"-->whole");}} />
 
       <div className="bg-[#0e121b] border border-slate-800 rounded-xl p-3 shadow-sm">
         <h3 className="font-mono text-[10px] font-bold uppercase text-slate-500 mb-2">ROOM CACHE ({filesArray.length})</h3>

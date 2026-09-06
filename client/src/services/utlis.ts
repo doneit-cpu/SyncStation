@@ -1,3 +1,5 @@
+
+
 export interface Fileinfo{
   id:string
   name:string;
@@ -49,6 +51,9 @@ export function genRoomcode() {
 
 }
 
+
+
+
 export async function isSamelan(hostLanIp: string) {
 
   const controller = new AbortController(); // read this 
@@ -58,6 +63,7 @@ export async function isSamelan(hostLanIp: string) {
     const response = await fetch(`https://${hostLanIp}:3000/api/ping`, {
       signal: controller.signal,
     });
+    console.log(response);
     clearTimeout(timeoutId);
     if(response.ok){
       return true; // Returns true if on the same local router!

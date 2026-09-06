@@ -12,6 +12,8 @@ const uploadpath = path.join(__dirname, "..", "uploads");
 
 console.log(uploadpath);
 
+const chuckfilesdetail = new Map<string, number[]>();
+
 const storage = multer.diskStorage({
   destination: uploadpath,
   filename(req, file, callback) {
@@ -21,13 +23,13 @@ const storage = multer.diskStorage({
 
 export function downloadFile(req: any, res: any) {
   const filename = req.params.filename; // Get filename from the URL
-  console.log('we are asking server to for file dinload',filename)
+  console.log('we are asking server to for file dinload', filename)
   const filePath = path.join(uploadpath, filename); // path to your uploads folder
 
   if (!fs.existsSync(filePath)) {
     return res.status(404).json({ error: "file not found or has been deleted" });
   }
-  
+
   res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
   res.sendFile(filePath);
 }
@@ -41,14 +43,14 @@ export const upload = multer({
 });
 
 export function fileshare(req: any, res: any) {
-  
+
   if (!req.file) {
     return res.status(400).json({ error: "No file uploaded" });
   }
 
   console.log("file name", req.file.filename);
   console.log(req.file);
-  
+
   const fileDetails: Fileinfo = {
     id: req.file.filename,
     sender: req.body.Username,
@@ -56,14 +58,28 @@ export function fileshare(req: any, res: any) {
     size: req.file.size,
     type: req.file.mimetype,
   };
-  
+
   filesrecords.push(fileDetails);
-  
+
   io.to(req.body.Roomcode).emit("filesharing-ev", fileDetails); // send it to everyone 
   console.log("we need it ")
   res.status(200).json({ msg: "everything went well" });
 }
 
+// export function chuckfiles(req: any, res: any) {
+
+//   if (!req.file) {
+//     return res.status(400).json({ error: "No file uploaded" });
+//   }
+
+//   const username=req.body.Username;
+//   chuckfilesdetail.set(username,[0]);
+//   if(req)
+//   chuckfilesdetail.get(username)!.push(req.body.sequencenum);
+
+//   if(req.body.sequencenum==(req.body.filesize/32*1024*1024)-1)
+
+// }
 
 const THREE_HOURS_IN_MS = 3 * 60 * 60 * 1000;
 
