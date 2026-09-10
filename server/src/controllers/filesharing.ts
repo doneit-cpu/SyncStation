@@ -135,4 +135,3 @@ const performCleanup = (folderPath: string) => {
 };
 
 
-// git log .. 

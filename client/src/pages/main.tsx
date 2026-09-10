@@ -5,7 +5,7 @@ import Alert from '../components/alert'
 import { useSync } from '../context/syncontext'
 import "./main.css"
 
-const Main = () => {
+const Main = () => {x
   const { alertdata } = useSync();
   return (
 

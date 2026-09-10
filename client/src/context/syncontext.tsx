@@ -16,7 +16,7 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
   // All your state "lives" here
   const [username, setUsername] = useState("");
   const [history, setHistory] = useState<string[]>([]);
-  const [shared, setshared] = useState(false);
+  const [shared, setshared] = useState(false); // removed it maybe 
   const [room, setroom] = useState("");
   const [Lanip, setLanip] = useState("");
   const [platfrom, setplatfrom] = useState("");
