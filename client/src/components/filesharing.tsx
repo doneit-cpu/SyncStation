@@ -25,7 +25,6 @@ const Filesharing = () => {
   const [isDragActive, setIsDragActive] = useState(false);
   const [uploadstate, setuploadstate] = useState<Record<string, UploadProgress>>({});
   const fileinputRef = useRef<HTMLInputElement>(null);
-  const chunkRef = useRef<Blob | null>(null);
   const chunksize = 32 * 1024 * 1024;
 
   const handleUpload = async (files: File[]) => {
@@ -35,89 +34,66 @@ const Filesharing = () => {
       return;
     };
 
-    const validFiles = files.filter(file => {
-      if (file.size > MAX_CLIENT_SIZE) {
-        // 
-
-      }
-      return true;
-    });
 
 
     const chunkuplad = async (file: File) => {
       const total_num = Math.ceil(file.size / chunksize);
       let seq_num = 0;
       let offsetchuk = 0;
-      while (seq_num <= total_num) {
-
-        const uploading = async (seq_num: number) => {
-          try {
+      let retries = 3;
+      let success = false;
+      
+      const uploading = async () => {
+        while (seq_num <= total_num) {
+          while (!success && retries > 0) {
             const formdata = new FormData();
             formdata.append('Username', username);
             formdata.append('Roomcode', room);
             formdata.append('sqnum', seq_num.toString());
+            
             offsetchuk = seq_num * chunksize;
-            chunkRef.current = file.slice(offsetchuk, offsetchuk + chunksize!);
-            formdata.append('Chunks', chunkRef.current);
-            const response = await axios.post(`https://${Lanip}:3000/api/files/uploads`, formdata)
-            if (response.status == 200) {
-              seq_num += 1;
-            } 
-          } catch (err) {
-            console.log("we got some problem", err);
+            const end = Math.min(file.size, offsetchuk + chunksize!);
+            
+            const chunkRef = file.slice(offsetchuk, end);
+            seq_num++;
+            try {
+              
+              formdata.append('Chunks', chunkRef);
+              await axios.post(`https://${Lanip}:3000/api/files/uploads`, formdata)
+              
+              success = true; // Move to next chunk
+            } catch (err) {
+              retries--;
+              if (retries === 0) {
+                console.error(`Fatal: Chunk ${seq_num} permanently failed.`);
+              }
+              await new Promise(r => setTimeout(r, 1000)); // Wait 1s before retry
+            }
           }
         }
-
-        if (seq_num === 0) {
+        
+        if (seq_num === 0) {   // it just make function calling for the woker at starter 
           const promise: Promise<void>[] = []
           for (let i = 0; i < 4; i++) {
-            promise.push(uploading(i));
+            promise.push(uploading());
           }
-          await Promise.all(promise);
+          await Promise.all(promise);  // it lunch all staters
         }
 
 
       }
 
-      const miss_chunks = async (miss_num: number) => {
-        const max_retires = 3;
-        let Success = false;
-        while (max_retires >=0 && !Success) {
-          try {
-            const formdata = new FormData();
-            formdata.append('Username', username);
-            formdata.append('Roomcode', room);
-            formdata.append('sqnum', miss_num.toString());
-            offsetchuk = miss_num * chunksize;
-            const chunk = file.slice(offsetchuk, offsetchuk + chunksize!);
-            formdata.append('Chunks', chunk);
-            const response = await axios.post(`https://${Lanip}:3000/api/files/uploads`, formdata)
-            if (response.status == 200) {
-              Success = true;
-              console.log("Missing chunk is nolonger missing it's taken place at server", miss_num);
-            }
-            -max_retires;
-          } catch (err) {
-            console.log("we got some marjor problem here", miss_num, "--> this chunk has failed again ", err);
-            -max_retires;
-          }
-        }
-      }
-
-      useEffect(() => {
-
-        socket.on("miss-ch", (data: number) => {
-          console.log("we got one missing chunk hope we send it faster",data);
-          miss_chunks(data);
-        })
-
-        return () => {
-          socket.off("miss-ch");
-        }
-      }, [socket])
 
     }
 
+
+    const validFiles = files.filter(file => {
+      if (file.size > MAX_CLIENT_SIZE) {
+        // splits file into 32mb chunks and then upload it 
+        chunkuplad(file);
+      }
+      return true;
+    });
 
 
     if (validFiles.length === 0) return;
@@ -257,3 +233,5 @@ const Filesharing = () => {
 };
 
 export default Filesharing;
+
+
