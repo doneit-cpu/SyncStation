@@ -25,7 +25,76 @@ const Filesharing = () => {
   const [isDragActive, setIsDragActive] = useState(false);
   const [uploadstate, setuploadstate] = useState<Record<string, UploadProgress>>({});
   const fileinputRef = useRef<HTMLInputElement>(null);
+  const chunkfilepointer = useRef<File>(null);
   const chunksize = 32 * 1024 * 1024;
+
+
+  const chunkuplad = async (file: File, resume: boolean, lastseq: number) => {
+    const total_num = Math.ceil(file.size / chunksize);
+    let seq_num = 0;
+    let offsetchuk = 0;
+
+    if (resume) {
+      seq_num = lastseq;
+    }
+
+    const uploading = async () => {
+      while (seq_num < total_num) {
+        let retries = 3;
+        let success = false;
+        const myseq = seq_num++;
+        const formdata = new FormData();   // this okay ,it creat new fomdata each time bro , like during all ? same again right 
+        formdata.append('Username', username);
+        formdata.append('Roomcode', room);
+        formdata.append('sqnum', myseq.toString());
+
+        offsetchuk = myseq * chunksize;
+        const end = Math.min(file.size, offsetchuk + chunksize!);
+        const chunkRef = file.slice(offsetchuk, end);
+        formdata.append('Chunks', chunkRef);
+
+        while (!success && retries > 0) {
+          try {
+            await axios.post(`https://${Lanip}:3000/api/files/uploads`, formdata)
+            success = true; // Move to next chunk
+          } catch (err) {
+            retries--;
+            if (retries === 0) {
+              console.error(`Fatal: Chunk ${myseq} permanently failed.`);
+            }
+            await new Promise(r => setTimeout(r, 1000)); // Wait 1s before retry
+          }
+        }
+      }
+    }
+    // it just make function calling for the woker at starter 
+    const promise: Promise<void>[] = []
+    for (let i = 0; i < 4; i++) {
+      promise.push(uploading());
+    }
+    await Promise.all(promise);  // it lunch all staters
+
+  }
+
+  useEffect(() => {
+    socket.on("resume-D", (data: number, filename: string) => {
+      if (chunkfilepointer.current) {
+        chunkuplad(chunkfilepointer.current, true, data)// how put file here or something like when browser refresh lost connectin wifi changed ? how get file pointer here any way 
+      } else {
+        if (filename) {
+          setalert({ "message": `Pls select ${filename} for resuming large file upload`, "type": "warning" })
+        }
+      }
+    })
+
+    if (chunkfilepointer.current) {
+      socket.emit("resume-info", chunkfilepointer.current.name)
+    }
+    return () => {
+      socket.off("resume-D")
+    }
+  }, [socket])
+
 
   const handleUpload = async (files: File[]) => {
 
@@ -34,63 +103,12 @@ const Filesharing = () => {
       return;
     };
 
-
-
-    const chunkuplad = async (file: File) => {
-      const total_num = Math.ceil(file.size / chunksize);
-      let seq_num = 0;
-      let offsetchuk = 0;
-      let retries = 3;
-      let success = false;
-      
-      const uploading = async () => {
-        while (seq_num <= total_num) {
-          while (!success && retries > 0) {
-            const formdata = new FormData();
-            formdata.append('Username', username);
-            formdata.append('Roomcode', room);
-            formdata.append('sqnum', seq_num.toString());
-            
-            offsetchuk = seq_num * chunksize;
-            const end = Math.min(file.size, offsetchuk + chunksize!);
-            
-            const chunkRef = file.slice(offsetchuk, end);
-            seq_num++;
-            try {
-              
-              formdata.append('Chunks', chunkRef);
-              await axios.post(`https://${Lanip}:3000/api/files/uploads`, formdata)
-              
-              success = true; // Move to next chunk
-            } catch (err) {
-              retries--;
-              if (retries === 0) {
-                console.error(`Fatal: Chunk ${seq_num} permanently failed.`);
-              }
-              await new Promise(r => setTimeout(r, 1000)); // Wait 1s before retry
-            }
-          }
-        }
-        
-        if (seq_num === 0) {   // it just make function calling for the woker at starter 
-          const promise: Promise<void>[] = []
-          for (let i = 0; i < 4; i++) {
-            promise.push(uploading());
-          }
-          await Promise.all(promise);  // it lunch all staters
-        }
-
-
-      }
-
-
-    }
-
-
     const validFiles = files.filter(file => {
       if (file.size > MAX_CLIENT_SIZE) {
         // splits file into 32mb chunks and then upload it 
-        chunkuplad(file);
+        chunkfilepointer.current = file;
+        console.log(chunkfilepointer);
+        chunkuplad(file, false, 0);
       }
       return true;
     });
