@@ -1,12 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
-import { FileText, Image as ImageIcon, Music, FileCode, Archive, Eye, Download, MicSignal, Square } from 'lucide-react';
+import { FileText, Image as ImageIcon, Music, FileCode, Archive, Eye, Download, } from 'lucide-react';
 import axios from 'axios';
 
 import type { Fileinfo } from '../services/utlis.ts';
 import { useSync } from '../context/syncontext';
-import { promiseHooks } from 'node:v8';
-import { Socket } from 'socket.io-client';
-import type { promises } from 'node:dns';
 import { socket } from '../services/socket.ts';
 
 interface UploadProgress {
@@ -47,6 +44,7 @@ const Filesharing = () => {
         formdata.append('Username', username);
         formdata.append('Roomcode', room);
         formdata.append('sqnum', myseq.toString());
+        formdata.append('path',file.name)
 
         offsetchuk = myseq * chunksize;
         const end = Math.min(file.size, offsetchuk + chunksize!);
@@ -55,7 +53,7 @@ const Filesharing = () => {
 
         while (!success && retries > 0) {
           try {
-            await axios.post(`https://${Lanip}:3000/api/files/uploads`, formdata)
+            await axios.post(`https://${Lanip}:3000/api/files/chunks`, formdata)
             success = true; // Move to next chunk
           } catch (err) {
             retries--;
@@ -109,8 +107,10 @@ const Filesharing = () => {
         chunkfilepointer.current = file;
         console.log(chunkfilepointer);
         chunkuplad(file, false, 0);
+        return false;
+      } else {
+        return true;
       }
-      return true;
     });
 
 
@@ -253,3 +253,4 @@ const Filesharing = () => {
 export default Filesharing;
 
 
+// git add 
