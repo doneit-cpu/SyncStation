@@ -1,6 +1,5 @@
 import { Server } from "socket.io";
-import { s_content } from "./controllers/clipboard.ts"
-import type { Clientinfo, audiocontrol } from "../../shared/types.ts"
+import type { Clientinfo, audiocontrol , Fileinfo } from "../../shared/types.ts"
 import { getLocalIp } from "./utlis.ts";
 import { getClintoffset, setClientoffset } from "./controllers/audiocast.ts";
 
@@ -8,7 +7,7 @@ import { getClintoffset, setClientoffset } from "./controllers/audiocast.ts";
 export let io: Server;
 
 const clients = new Map<string, Clientinfo>; // the string here for socketid
-
+export const lfiledetail=new Map<string, { sortedch: number, waitingch: number[], change: boolean ,file:Fileinfo }>();
 
 export function setupSocket(server: any) {
 
@@ -88,6 +87,15 @@ export function setupSocket(server: any) {
             }
         })
 
+        socket.on("lfinfo",(data)=>{  // get file info here 
+            const file:{
+                
+            }
+            lfiledetail.set(data.filename,)
+        })
+
+
+
         socket.on("disconnect", (reason) => {
             clients.delete(socket.id);
             console.log("goodbye frd:", reason, "--", socket.id);
@@ -101,22 +109,4 @@ export function setupSocket(server: any) {
 
 
 
-{
-    // user come to site 
-    // but at the moment client open site they are connect to socket.io right or wrong , or does they click button ?? or i can button ?
-    // user need uniqe name (we have to do this in fronend ) , also we need the device type  
-    // then join the room or made new depend on need 
-    // after this he connect to socket io , which way we connect our server and client , so all above data goes to each other how i don't how 
-
-
-    // console.log("Connected:", socket.id);
-    // socket.on("message", () => {
-    //     console.log("client as connected ");
-    // });
-
-    /*export async function s_content(data:string) {
-    console.log("we will overwritten")
-    clipboard.write(data);
-    code of s_content
-    }*/
-}      
+ 

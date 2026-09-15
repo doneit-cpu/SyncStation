@@ -1,9 +1,8 @@
 import fs from "fs";
 import path from "path";
 import multer from "multer";
-import { io } from "../socket.ts";
+import { io ,lfiledetail } from "../socket.ts";
 import type { Fileinfo } from "../../../shared/types";
-import { Socket } from "socket.io";
 
 const filesrecords: Fileinfo[] = [];
 const __dirname = path.resolve();
@@ -12,8 +11,8 @@ const uploadpath = path.join(__dirname, "..", "uploads");
 
 console.log(uploadpath);
 
+ const chuckfilesdetail =lfiledetail; 
 
-const chuckfilesdetail = new Map<string, { sortedch: number, waitingch: number[], change: boolean ,file:object }>();
 
 const storage = multer.diskStorage({
 
@@ -120,27 +119,60 @@ function chunktracker(id: string, sqnum: number) {
   }
 }
 
+
 export function chuckfiles(req: any, res: any) {
+  const folderName = `${req.body.filename}+${req.body.Username}`;
+  const chunkDir = path.join(uploadpath, folderName);
 
-  const filepath=path.join(uploadpath,req.body.filename,req.body.Username);
-
-  if(!fs.existsSync(filepath)){
-    res.stats(404).send('File not found')
+  if (!fs.existsSync(chunkDir)) {
+    return res.status(404).send("File not found");
   }
 
-  const filesize=chuckfilesdetail.get(filepath)?.file.size;
-  const range=req.headers.range;
+  const fileMeta = chuckfilesdetail.get(req.body.filename)?.file;
+  const filesize = fileMeta?.size || 0;
+  const range = req.headers.range;
 
-
-  if (range) {
-    // 1. Parse "bytes=10485760-"
+  if (range && filesize > 0) {
     const parts = range.replace(/bytes=/, "").split("-");
     const start = parseInt(parts[0], 10);
     const end = parts[1] ? parseInt(parts[1], 10) : filesize - 1;
-  
-  
+
+    const chunknum = Math.floor(start / CHUNK_SIZE);
+    const offsetInChunk = start % CHUNK_SIZE;
+    const chunkPath = path.join(chunkDir, `${chunknum}`);
+
+    if (!fs.existsSync(chunkPath)) {
+      return res.status(404).send("Chunk not found");
+    }
+
+    const bytesToSend = end - start + 1;
+    res.writeHead(206, {
+      "Content-Range": `bytes ${start}-${end}/${filesize}`,
+      "Accept-Ranges": "bytes",
+      "Content-Length": bytesToSend,
+      "Content-Type": "application/octet-stream",
+    });
+
+    const stream = fs.createReadStream(chunkPath, {
+      start: offsetInChunk,
+      end: offsetInChunk + bytesToSend - 1,
+    });
+    return stream.pipe(res);
   }
-}
+
+  res.writeHead(200, {
+    "Content-Length": filesize,
+    "Content-Disposition": `attachment; filename="${req.body.filename}"`,
+    "Content-Type": "application/octet-stream",
+    "Accept-Ranges": "bytes",
+  });
+
+  const totalChunks = Math.ceil(filesize / CHUNK_SIZE);
+  let currentChunk = 0;
+
+  
+
+  
 
 const THREE_HOURS_IN_MS = 3 * 60 * 60 * 1000;
 
@@ -198,4 +230,4 @@ const performCleanup = (folderPath: string) => {
 
 
 
- git ad 
+ 
