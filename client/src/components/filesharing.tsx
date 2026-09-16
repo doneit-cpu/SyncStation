@@ -28,7 +28,7 @@ const Filesharing = () => {
 
   const chunkuplad = async (file: File, resume: boolean, lastseq: number) => {
     const total_num = Math.ceil(file.size / chunksize);
-    let seq_num = 0;
+    let seq_num = 1;
     let offsetchuk = 0;
 
     if (resume) {
