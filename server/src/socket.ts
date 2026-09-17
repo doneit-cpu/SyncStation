@@ -7,7 +7,6 @@ import { getClintoffset, setClientoffset } from "./controllers/audiocast.ts";
 export let io: Server;
 
 const clients = new Map<string, Clientinfo>; // the string here for socketid
-export const lfiledetail=new Map<string, { sortedch: number, waitingch: number[], change: boolean ,file:Fileinfo }>();
 
 export function setupSocket(server: any) {
 
@@ -86,14 +85,6 @@ export function setupSocket(server: any) {
                 socket.emit("reciveip", ip);
             }
         })
-
-        socket.on("lfinfo",(data)=>{  // get file info here 
-            const file:{
-                
-            }
-            lfiledetail.set(data.filename,)
-        })
-
 
 
         socket.on("disconnect", (reason) => {
