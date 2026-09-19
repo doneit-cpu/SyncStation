@@ -5,6 +5,7 @@ import { io } from "../socket.ts";
 import type { Fileinfo } from "../../../shared/types";
 import { setInterval } from "timers/promises";
 
+
 const filesrecords: Fileinfo[] = [];
 const __dirname = path.resolve();
 console.log(__dirname);
@@ -19,18 +20,17 @@ const storage = multer.diskStorage({
 
   destination: function (req, file, callback) {
     let despath = uploadpath;
-    if (req.body.path) {
-      despath = path.join(uploadpath, `${req.body.path}+${req.body.Username}`)
-
+    if (req.body.filename) {
+      despath = path.join(uploadpath, `${req.body.filename}+${req.body.Username}`)
       if (!fs.existsSync(despath)) {
         fs.mkdirSync(despath, { recursive: true });
       }
-      callback(null, despath)
     }
+    callback(null, despath);
   },
 
   filename(req, file, callback) {
-    if (req.body.path) {
+    if (req.body.filename) {
       callback(null, `${req.body.sqnum}`);
     } else {
       callback(null, `${Date.now()}${req.body.Username || 'user'}-${file.originalname}`);
@@ -68,31 +68,34 @@ export function fileshare(req: any, res: any) {
     return res.status(400).json({ error: "No file uploaded" });
   }
 
+  const path = req.body.filename;
+
   console.log("file name", req.file.filename);
   console.log(req.file);
 
   const fileDetails: Fileinfo = {
     id: req.file.filename,
     sender: req.body.Username,
-    name: req.file.originalname,
-    size: req.file.size,
-    type: req.file.mimetype,
+    name: path ? path : req.file.originalname,
+    size: path ? +req.body.size : +req.file.size,
+    type: path ? req.body.type : req.file.mimetype,
   };
-
-
-  if (req.body.path) {
-    const key = req.body.filename + req.body.Username;
-    if (!chuckfilesdetail.has(key)) {
-      chuckfilesdetail.set(key, { sortedch: -1, waitingch: [], change: false, file: fileDetails });
-    }
-    chunktracker(key, req.body.sqnum);
-  }
 
   filesrecords.push(fileDetails);
 
-  io.to(req.body.Roomcode).emit("filesharing-ev", fileDetails); // send it to everyone 
-  console.log("we need it ")
-  res.status(200).json({ msg: "everything went well" });
+  if (path) {
+    const key = req.body.filename + req.body.Username;
+    if (!chuckfilesdetail.has(key)) {
+      chuckfilesdetail.set(key, { sortedch: 1, waitingch: [], change: false, file: fileDetails });
+      io.to(req.body.Roomcode).emit("l-filesharing-ev", fileDetails);
+    }
+    const num=+req.body.sqnum;
+    chunktracker(key,num);   //+ make it's number and send it okay 
+  } else {
+    io.to(req.body.Roomcode).emit("filesharing-ev", fileDetails); // send it to everyone 
+    console.log("we need it ");
+    res.status(200).json({ msg: "everything went well" });
+  }
 }
 
 // when every u make the map put value chuckfilesdetail.set(filename,-1,false)
@@ -113,9 +116,10 @@ function chunktracker(id: string, sqnum: number) {
         }
       })
       temp.waitingch = temp.waitingch.slice(0, nothign);
-      temp.change = false; 19
+      temp.change = false;
     }
   }
+
   if (sqnum + 1 == temp?.sortedch) {    //0 , 1 not came , but 2 come fist so , 3 
     temp.sortedch = sqnum;          //1
     temp.change = true;           // true
@@ -124,9 +128,8 @@ function chunktracker(id: string, sqnum: number) {
   }
 }
 
-
 export function chuckfiles(req: any, res: any) {
-  const folderName = `${req.body.filename}${req.body.Username}`;
+  const folderName = req.params.filename;
   const chunkDir = path.join(uploadpath, folderName);
 
   if (!fs.existsSync(chunkDir)) {
@@ -155,15 +158,16 @@ export function chuckfiles(req: any, res: any) {
   if (range) {
     res.writeHead(206, {
       "Content-Range": `bytes ${start}-${end}/${filesize}`,
+      "Content-Disposition": `attachment; filename="${req.body.filename}"`,
       "Accept-Ranges": "bytes",
       "Content-Length": end - start + 1,
-      "Content-Type": "application/octet-stream",
+      "Content-Type": tracker.file.type,
     });
   } else {
     res.writeHead(200, {
       "Content-Length": filesize,
       "Content-Disposition": `attachment; filename="${req.body.filename}"`,
-      "Content-Type": "application/octet-stream",
+      "Content-Type": tracker.file.type,
       "Accept-Ranges": "bytes",
     });
   }
@@ -172,7 +176,7 @@ export function chuckfiles(req: any, res: any) {
 
   let retries = 3;
 
-  async function streamNext(range: boolean = false, st: number = 0) {
+  async function streamNext(range: boolean , st: number) {
 
     if (range) {
       currentChunk = Math.floor(st / chunksize);
@@ -182,7 +186,7 @@ export function chuckfiles(req: any, res: any) {
       if (retries > 0) {
         retries--
         await new Promise(resolve => setTimeout(resolve, 5000));
-        return streamNext()
+        return streamNext(false, currentChunk);
       } else {
         retries = 3;
         return res.end();
@@ -198,7 +202,7 @@ export function chuckfiles(req: any, res: any) {
     stream.pipe(res, { end: false });
     stream.on("end", () => {
       currentChunk++;
-      streamNext();
+      streamNext(false, currentChunk);
     });
 
     stream.on("error", () => {
@@ -260,9 +264,4 @@ const performCleanup = (folderPath: string) => {
     });
   });
 };
-
-
-
-
-
 

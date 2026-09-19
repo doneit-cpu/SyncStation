@@ -27,6 +27,7 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
   const [selectitem, setselecteitem] = useState("");
   const [isconnected, setisconnected] = useState(false);
   const [fileshareMap, setfileshareMap] = useState<FileMap>(new Map());
+  const [lfileinfo,setlfileinfo]=useState<Fileinfo>();
   const [alertdata, setalert] = useState<AlertType | null>(null); // custom alet object for custom alet on site
   // const [problem, setproblem] = useState("");
 
@@ -94,7 +95,10 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
       });
     })
 
-
+    socket.on("l-filesharing-ev",(data:Fileinfo)=>{
+      console.log("we got some havey stuff");
+      setlfileinfo(data);
+    })
 
     socket.on("connect_error", (err) => {
       console.error("Connection Error:", err.message);
@@ -158,6 +162,7 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
       socket.off('connect_error');
       socket.off('disconnect');
       socket.off('filesharing-ev');
+      socket.off('l-filesharing-ev');
     };
 
   }, [])
@@ -216,7 +221,7 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   return (
-    <SyncContext.Provider value={{ username, setUsername, history, addToHistory, createroom, joingreq, shared, setshared, room, setroom, socket, linkjoinreq, alertdata, setalert, Lanip, platfrom, lannet, checklan, fileshareMap, isconnected, setisconnected, isplay, setisplay, song, setsong, selectitem, setselecteitem, filename, setfilename, broadcasterid, audioRef,readClipboard }}>
+    <SyncContext.Provider value={{ username, setUsername, history, addToHistory, createroom, joingreq, shared, setshared, room, setroom, socket, linkjoinreq, alertdata, setalert, Lanip, platfrom, lannet, checklan, fileshareMap, isconnected, setisconnected, isplay, setisplay, song, setsong, selectitem, setselecteitem, filename, setfilename, broadcasterid, audioRef,readClipboard,lfileinfo}}>
       {children}
     </SyncContext.Provider>
   );
