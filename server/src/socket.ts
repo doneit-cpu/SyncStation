@@ -6,7 +6,7 @@ import { getClintoffset, setClientoffset } from "./controllers/audiocast.ts";
 
 export let io: Server;
 
-const clients = new Map<string, Clientinfo>; // the string here for socketid
+export const clients = new Map<string, Clientinfo>; // the string here for socketid
 
 export function setupSocket(server: any) {
 

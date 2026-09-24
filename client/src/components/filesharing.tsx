@@ -28,8 +28,7 @@ const Filesharing = () => {
   const chunkuplad = async (file: File, resume: boolean, lastseq: number) => {
     const total_num = Math.ceil(file.size / chunksize);
     let seq_num = 0;
-    let offsetchuk = 0;
-
+    
     if (resume) {
       seq_num = lastseq;
     }
@@ -47,10 +46,10 @@ const Filesharing = () => {
         formdata.append('size',`${file.size}`);
         formdata.append('type',`${file.type}`)
 
-        offsetchuk = myseq * chunksize;
+        const offsetchuk = myseq * chunksize;
         const end = Math.min(file.size, offsetchuk + chunksize!);
         const chunkRef = file.slice(offsetchuk, end);
-        formdata.append('Chunks', chunkRef);
+        formdata.append('Chunk', chunkRef);
 
         while (!success && retries > 0) {
           try {
@@ -193,7 +192,8 @@ const Filesharing = () => {
   const lhandleDownload = async (id: string, name: string) => {
     const key=id+name;
     try {
-      const downloadUrl = `https://${Lanip}:3000/api/files/chunks/${encodeURIComponent(key)}`;
+      const downloadUrl = `https://${Lanip}:3000/api/files/l-download/${key}`;
+      console.log(downloadUrl);
       const check = await fetch(downloadUrl, { method: 'HEAD' });
       if (!check.ok) {
         setalert({ message: "File not found or has been deleted.", type: "error" });
@@ -264,7 +264,6 @@ const Filesharing = () => {
                   <p className="text-[10px] font-mono text-slate-500">{f.sender} • {formatSize(f.size)}</p>
                 </div>
               </div>
-              {lfileinfo && <button onClick={() => { lhandleDownload(lfileinfo.filename, lfileinfo.sender) }} >Ultra flast transfer</button>}
               <div className="flex items-center gap-1">
                 <button className="p-1.5 hover:bg-slate-800 text-slate-400 rounded"><Eye className="w-3.5 h-3.5" /></button>
                 <button onClick={() => handleDownload(f.id, f.name)} className="p-1.5 hover:bg-slate-800 text-cyan-400 rounded">
@@ -275,6 +274,7 @@ const Filesharing = () => {
           ))}
         </div>
       </div>
+      {lfileinfo && <button onClick={() => { lhandleDownload(lfileinfo.name, lfileinfo.sender) }} >Ultra flast transfer</button>}
     </div >
   );
 };

@@ -27,14 +27,14 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
   const [selectitem, setselecteitem] = useState("");
   const [isconnected, setisconnected] = useState(false);
   const [fileshareMap, setfileshareMap] = useState<FileMap>(new Map());
-  const [lfileinfo,setlfileinfo]=useState<Fileinfo>();
+  const [lfileinfo, setlfileinfo] = useState<Fileinfo>();
   const [alertdata, setalert] = useState<AlertType | null>(null); // custom alet object for custom alet on site
   // const [problem, setproblem] = useState("");
 
   const audioRef = useRef<HTMLAudioElement>(null);
   const centerinterval = useRef<NodeJS.Timeout>(null);
   const loaded = useRef(0);
-  const readClipboard=useRef<Promise<void>>(null);
+  const readClipboard = useRef<Promise<void>>(null);
   const broadcasterid = useRef("");
   // Functions to manipulate stat
   const addToHistory = (newContent: string) => {
@@ -95,7 +95,11 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
       });
     })
 
-    socket.on("l-filesharing-ev",(data:Fileinfo)=>{
+    socket.on("s-normal", () => {
+      setlfileinfo(undefined);
+    })
+
+    socket.on("l-filesharing-ev", (data: Fileinfo) => {
       console.log("we got some havey stuff");
       setlfileinfo(data);
     })
@@ -128,21 +132,21 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
 
       if (date % (1000 * 60 * 5)) {
         // syncclock()    // sync device clock with server 
-      } else if (date % (1000 * 10)) {        
-          console.log(audioRef.current);
-          const playedpart = (Date.now() - loaded.current) / 1000;
-          const diff = audioRef.current?.currentTime! - playedpart;
+      } else if (date % (1000 * 10)) {
+        console.log(audioRef.current);
+        const playedpart = (Date.now() - loaded.current) / 1000;
+        const diff = audioRef.current?.currentTime! - playedpart;
 
-          if (diff < -0.04) {
-            // Behind by more than 40ms -> speed up slightly
-            audioRef.current!.playbackRate = 1.04;
-          } else if (diff > 0.04) {
-            // Ahead by more than 40ms -> slow down slightly
-            audioRef.current!.playbackRate = 0.96;
-          } else {
-            // In diff!
-            audioRef.current!.playbackRate = 1.0;
-          }
+        if (diff < -0.04) {
+          // Behind by more than 40ms -> speed up slightly
+          audioRef.current!.playbackRate = 1.04;
+        } else if (diff > 0.04) {
+          // Ahead by more than 40ms -> slow down slightly
+          audioRef.current!.playbackRate = 0.96;
+        } else {
+          // In diff!
+          audioRef.current!.playbackRate = 1.0;
+        }
       } else if (date % 500) {
 
       }
@@ -163,6 +167,7 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
       socket.off('disconnect');
       socket.off('filesharing-ev');
       socket.off('l-filesharing-ev');
+      socket.off('s-normal');
     };
 
   }, [])
@@ -221,7 +226,7 @@ export const SyncProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   return (
-    <SyncContext.Provider value={{ username, setUsername, history, addToHistory, createroom, joingreq, shared, setshared, room, setroom, socket, linkjoinreq, alertdata, setalert, Lanip, platfrom, lannet, checklan, fileshareMap, isconnected, setisconnected, isplay, setisplay, song, setsong, selectitem, setselecteitem, filename, setfilename, broadcasterid, audioRef,readClipboard,lfileinfo}}>
+    <SyncContext.Provider value={{ username, setUsername, history, addToHistory, createroom, joingreq, shared, setshared, room, setroom, socket, linkjoinreq, alertdata, setalert, Lanip, platfrom, lannet, checklan, fileshareMap, isconnected, setisconnected, isplay, setisplay, song, setsong, selectitem, setselecteitem, filename, setfilename, broadcasterid, audioRef, readClipboard, lfileinfo }}>
       {children}
     </SyncContext.Provider>
   );
