@@ -78,18 +78,62 @@ flowchart LR
 ## Getting started
 
 1. **Clone** the repository.
-2. **Create a certificate** for HTTPS (for example with mkcert) and place `key.pem` and `cert.pem` where the server loads them.
-3. **Start the server:**
+2. **Create the HTTPS certificate** (two commands, see [HTTPS certificate](#https-certificate)).
+3. **Install dependencies** (once):
    ```bash
-   cd server && npm install && npm run dev
+   npm install && npm install --prefix client && npm install --prefix server
    ```
-4. **Start the client:**
+4. **Run it.** From the project root, one command starts the client and server together:
    ```bash
-   cd client && npm install && npm run dev
+   npm run dev
+   ```
+   For everyday use, build the client and run the server:
+   ```bash
+   npm run build-and-run
    ```
 5. **Open the app** in a browser, create a room, then join from another device with the QR code or link.
 
 > Phone browsers only allow clipboard and capture features on HTTPS (or localhost), which is why the server runs over HTTPS. For large files, wired Ethernet or 5 GHz Wi-Fi is recommended, since speed depends on your local network.
+
+---
+
+## HTTPS certificate
+
+SyncStation needs `key.pem` and `cert.pem` in the `server/` folder. Create them once on the machine that hosts the server.
+
+**1. Find the host machine's LAN IP**
+
+```bash
+# Windows
+ipconfig
+
+# Linux
+hostname -I
+```
+
+Look for an address like `192.168.1.5`.
+
+**2. Create the certificate** (replace `192.168.1.5` with your IP)
+
+Option A: [mkcert](https://github.com/FiloSottile/mkcert) (recommended, no browser warning on the host machine)
+
+```bash
+mkcert -install
+mkcert -key-file server/key.pem -cert-file server/cert.pem 192.168.1.5 localhost 127.0.0.1
+```
+
+Option B: OpenSSL (browsers will show a warning you can click through)
+
+```bash
+openssl req -x509 -newkey rsa:2048 -nodes -keyout server/key.pem -out server/cert.pem -days 365 \
+  -subj "/CN=localhost" -addext "subjectAltName=IP:192.168.1.5,DNS:localhost,IP:127.0.0.1"
+```
+
+**3. Open the app from another device**
+
+Use `https://192.168.1.5:3000`. Phones will warn about the certificate the first time; tap through it once.
+
+> The certificate is tied to the IP you typed. If your router gives the host machine a new IP, create the certificate again, or reserve a fixed IP for it in your router settings. Never commit `key.pem` to git (`*.pem` is already ignored).
 
 ---
 
