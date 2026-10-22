@@ -4,14 +4,21 @@ import Alert from '../components/alert'
 import { useSync } from '../context/syncontext'
 import "./home.css"
 
+
 const Home = () => {
   const { alertdata } = useSync();
+
+  const pwe_i=()=>{
+     console.log("pwa istallion");
+    (<link rel="manifest" href="manifest.json" />)
+  }
+
   return (
     <div className='home-card'>
       {alertdata && <Alert />}
       <div className='headstatusbar'>
         <h2>SYNCSTATION</h2>
-        <button onClick={() => { console.log("next to other page") }}>Self-Host Guide</button>
+        <button onClick={pwe_i}>Self-Host Guide</button>
       </div>
       <div className='girdway-container'>
         <div className='left-panel'>

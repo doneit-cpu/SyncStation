@@ -54,3 +54,5 @@ export function syncontinous(){
 }
 
 //. git 
+
+// nano ~/.local/share/applications/firefox.desktop

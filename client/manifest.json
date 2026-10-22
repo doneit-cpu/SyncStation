@@ -1,0 +1,23 @@
+
+{
+  "name": "Syncstatoin by doneit-cpu",
+  "short_name": "Syncstatoin",
+  "start_url": "index.html",
+  "scope": "./",
+  "icons": [
+    {
+      "src": "/public/icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/public/icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#ffd31d",
+  "background_color": "#333399",
+  "display": "standalone"
+}
+
