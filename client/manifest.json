@@ -1,17 +1,16 @@
-
 {
-  "name": "Syncstatoin by doneit-cpu",
-  "short_name": "Syncstatoin",
-  "start_url": "index.html",
-  "scope": "./",
+  "name": "SyncStation by doneit-cpu",
+  "short_name": "SyncStation",
+  "start_url": "/",
+  "scope": "/",
   "icons": [
     {
-      "src": "/public/icon.png",
+      "src": "/icon.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/public/icon.png",
+      "src": "/icon.png",
       "sizes": "512x512",
       "type": "image/png"
     }
@@ -20,4 +19,3 @@
   "background_color": "#333399",
   "display": "standalone"
 }
-

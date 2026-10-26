@@ -11,10 +11,11 @@ import { getLocalIp } from "./utlis.ts"
 import { startCleanup } from './controllers/filesharing.ts'
 const app = express();
 
-const key = fs.readFileSync(path.join(process.cwd(),"key.pem"));
-const cert = fs.readFileSync(path.join(process.cwd(),"cert.pem"));
+const key = fs.readFileSync(path.join(process.cwd(), "cert.key"));
+const cert = fs.readFileSync(path.join(process.cwd(), "cert.crt"));
+const ca = fs.readFileSync(path.join(process.cwd(), "ca.crt")); 
 
-const server = https.createServer({ key,cert},app);
+const server = https.createServer({ key, cert, ca }, app);     
 
 setupSocket(server);
 
