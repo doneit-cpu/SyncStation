@@ -4,9 +4,10 @@ import { nodePolyfills } from 'vite-plugin-node-polyfills'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(),nodePolyfills()],
+  plugins: [react(), nodePolyfills()],
+  base: process.env.GH_PAGES ? '/SyncStation/' : '/',
   server: {
     host: '0.0.0.0', // This tells Vite to listen to your whole Wi-Fi network
-    port: 5173      
+    port: 5173
   }
 })
