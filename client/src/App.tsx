@@ -13,14 +13,12 @@ const App = () => {
 
   return (
     <BrowserRouter basename="/SyncStation">
-    <>
-    <BrowserRouter basename="/SyncStation">
+    <>  
       <Routes>
         <Route path="/" element={<Navigate to="/home" replace />} />
         <Route path="/home" element={<Home />} />
         <Route path="/main" element={<Main />} />
       </Routes>
-    </BrowserRouter>
     </>
     </BrowserRouter>
   )
