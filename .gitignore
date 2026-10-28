@@ -4,7 +4,6 @@ help.txt
 TODO.md
 /src/uploads
 uploads/
-**.png
 **.pem
 **.key
 **.crt
