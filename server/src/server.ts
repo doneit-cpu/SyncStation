@@ -13,9 +13,9 @@ const app = express();
 
 const key = fs.readFileSync(path.join(process.cwd(), "cert.key"));
 const cert = fs.readFileSync(path.join(process.cwd(), "cert.crt"));
-const ca = fs.readFileSync(path.join(process.cwd(), "ca.crt")); 
+// const ca = fs.readFileSync(path.join(process.cwd(), "ca.crt")); 
 
-const server = https.createServer({ key, cert, ca }, app);     
+const server = https.createServer({ key, cert }, app);     
 
 setupSocket(server);
 
@@ -63,3 +63,4 @@ server.listen(3000, '0.0.0.0', async () => {
 
 
 
+// git add .

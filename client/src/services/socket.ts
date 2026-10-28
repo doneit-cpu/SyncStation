@@ -7,7 +7,7 @@ export const socket = io({   // we don't need to share or put link here bcs this
   reconnection: true,
   reconnectionAttempts: 5,
   reconnectionDelay: 2000,
-  autoConnect: true,
+  autoConnect: false,
 });
 
 export function connect() {
