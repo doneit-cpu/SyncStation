@@ -12,6 +12,7 @@ import Main from "./pages/main.tsx"
 const App = () => {
 
   return (
+    <BrowserRouter basename="/SyncStation">
     <>
     <BrowserRouter basename="/SyncStation">
       <Routes>
@@ -21,6 +22,7 @@ const App = () => {
       </Routes>
     </BrowserRouter>
     </>
+    </BrowserRouter>
   )
 }
 

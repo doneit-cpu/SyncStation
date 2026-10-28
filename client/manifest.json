@@ -1,8 +1,8 @@
 {
   "name": "SyncStation by doneit-cpu",
   "short_name": "SyncStation",
-  "start_url": "/",
-  "scope": "/",
+  "start_url": "/SyncStation/",
+  "scope": "/SyncStation/",
   "icons": [
     {
       "src": "icon.png",

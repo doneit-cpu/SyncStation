@@ -53,6 +53,4 @@ export function syncontinous(){
   }, 5*60*1000)
 }
 
-//. git 
 
-// nano ~/.local/share/applications/firefox.desktop

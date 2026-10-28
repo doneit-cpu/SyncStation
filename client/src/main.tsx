@@ -5,9 +5,7 @@ import { SyncProvider } from './context/syncontext.tsx'
 import { BrowserRouter } from "react-router-dom";
 
 createRoot(document.getElementById('root')!).render(
-  <SyncProvider>
-    <BrowserRouter>
+  <SyncProvider>  
       <App />
-    </BrowserRouter>
   </SyncProvider>,
 )
